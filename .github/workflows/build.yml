@@ -13,6 +13,7 @@ jobs:
       - uses: subosito/flutter-action@v2
         with:
           channel: stable
+      - run: flutter create --platforms=android,windows --project-name electro_design .
       - run: flutter pub get
       - run: flutter analyze
       - run: flutter test
@@ -28,7 +29,7 @@ jobs:
       - uses: subosito/flutter-action@v2
         with:
           channel: stable
-      - run: flutter config --enable-windows-desktop
+      - run: flutter create --platforms=android,windows --project-name electro_design .
       - run: flutter pub get
       - run: flutter build windows --release
       - uses: actions/upload-artifact@v4
