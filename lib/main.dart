@@ -30,6 +30,23 @@ const library = <Part>[
   Part('Variateur de vitesse', 'Nouvelle génération', 'VFD', 'Commande électronique moteur'),
   Part('Automate programmable', 'Nouvelle génération', 'PLC', 'Commande programmable'),
   Part('Compteur intelligent', 'Nouvelle génération', 'kWh', 'Mesure et suivi énergétique'),
+  Part('Fusible', 'Protection', 'F', 'Protection par fusion'),
+  Part('Sectionneur', 'Industriel', 'QS', 'Isolement visible d’un circuit'),
+  Part('Disjoncteur moteur', 'Industriel', 'QF-M', 'Protection et commande moteur'),
+  Part('Démarreur progressif', 'Industriel', 'ATS', 'Démarrage moteur progressif'),
+  Part('Transformateur', 'Industriel', 'T', 'Adaptation de tension'),
+  Part('Alimentation 24 V CC', 'Tertiaire', 'PS', 'Alimentation de commande'),
+  Part('Bouton poussoir', 'Tertiaire', 'BP', 'Commande momentanée'),
+  Part('Arrêt d’urgence', 'Industriel', 'AU', 'Commande de sécurité'),
+  Part('Capteur de proximité', 'Industriel', 'B', 'Détection sans contact'),
+  Part('Fin de course', 'Industriel', 'FC', 'Détection de position'),
+  Part('Onduleur', 'Nouvelle génération', 'UPS', 'Alimentation sans interruption'),
+  Part('Batterie de stockage', 'Nouvelle génération', 'BAT', 'Stockage électrique'),
+  Part('Borne de recharge VE', 'Nouvelle génération', 'EV', 'Recharge de véhicule électrique'),
+  Part('Relais connecté', 'Nouvelle génération', 'IoT', 'Commande et supervision connectées'),
+  Part('Détecteur de fumée', 'Tertiaire', 'DF', 'Détection incendie'),
+  Part('Bloc de secours', 'Tertiaire', 'BAES', 'Éclairage de sécurité'),
+  Part('Contrôleur GTB', 'Tertiaire', 'BMS', 'Gestion technique du bâtiment'),
 ];
 
 class PlacedPart {
@@ -96,10 +113,21 @@ class _EditorPageState extends State<EditorPage> {
       Text('Outil : ${tool.name}', style: const TextStyle(fontSize: 11)),
     ])),
     Expanded(child: GestureDetector(
-      behavior: HitTestBehavior.opaque, onTapDown: (d) => add(d.localPosition),
+      behavior: HitTestBehavior.opaque, onTapDown: (d) {
+        final point = d.localPosition;
+        var hit = -1;
+        for (var i = placed.length - 1; i >= 0; i--) {
+          if ((placed[i].position - point).distance <= 34) { hit = i; break; }
+        }
+        if (hit >= 0) {
+          setState(() => selected = hit);
+        } else {
+          add(point);
+        }
+      },
       child: CustomPaint(painter: GridPainter(placed, selected), child: const SizedBox.expand()),
     )),
-    const Padding(padding: EdgeInsets.all(6), child: Text('Choisissez un composant puis touchez la grille pour le placer.', style: TextStyle(fontSize: 10))),
+    const Padding(padding: EdgeInsets.all(6), child: Text('Touchez un composant de la grille pour le sélectionner, ou une zone vide pour placer l’outil choisi.', style: TextStyle(fontSize: 10))),
   ]);
 
   Widget properties() {
