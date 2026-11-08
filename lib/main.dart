@@ -128,7 +128,7 @@ class GridPainter extends CustomPainter {
     for (double y = 0; y < size.height; y += step) { canvas.drawLine(Offset(0, y), Offset(size.width, y), grid); }
     for (var i = 0; i < items.length; i++) {
       final item = items[i]; final c = item.position;
-      final p = Paint()..color = i == selected ? const Color(0xFF087E8B) : const Color(0xFF263746)..style = PaintingStyle.stroke..strokeWidth = 2;
+      final p = Paint()..color = (i == selected ? const Color(0xFF087E8B) : const Color(0xFF263746))..style = PaintingStyle.stroke..strokeWidth = 2;
       canvas.drawRect(Rect.fromCenter(center: c, width: 54, height: 40), p);
       final symbol = TextPainter(text: TextSpan(text: item.part.symbol, style: TextStyle(color: p.color, fontSize: 12, fontWeight: FontWeight.bold)), textDirection: TextDirection.ltr)..layout(maxWidth: 50);
       symbol.paint(canvas, c - Offset(symbol.width / 2, symbol.height / 2));
