@@ -112,13 +112,15 @@ class _EditorPageState extends State<EditorPage> {
       IconButton(tooltip: 'Supprimer', onPressed: remove, icon: const Icon(Icons.delete_outline)),
     ]),
     body: LayoutBuilder(builder: (context, c) {
-      if (c.maxWidth > 850) return Row(children: [
+      if (c.maxWidth > 850) {
+        return Row(children: [
         SizedBox(width: 245, child: palette()),
         const VerticalDivider(width: 1),
         Expanded(child: canvas()),
         const VerticalDivider(width: 1),
         SizedBox(width: 230, child: properties()),
-      ]);
+        ]);
+      }
       return Column(children: [SizedBox(height: 185, child: palette()), Expanded(child: canvas()), SizedBox(height: 105, child: properties())]);
     }),
     bottomNavigationBar: BottomAppBar(height: 34, child: Row(children: [
@@ -131,7 +133,7 @@ class _EditorPageState extends State<EditorPage> {
     const Text('BIBLIOTHÈQUE', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
     const SizedBox(height: 6),
     DropdownButtonFormField<String>(
-      value: family, isExpanded: true, decoration: const InputDecoration(isDense: true, border: OutlineInputBorder()),
+      initialValue: family, isExpanded: true, decoration: const InputDecoration(isDense: true, border: OutlineInputBorder()),
       items: ['Toutes', 'Domestique', 'Protection', 'Tertiaire', 'Industriel', 'Nouvelle génération'].map((s) => DropdownMenuItem(value: s, child: Text(s))).toList(),
       onChanged: (v) => setState(() => family = v ?? 'Toutes'),
     ),
