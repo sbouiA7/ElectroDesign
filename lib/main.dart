@@ -129,7 +129,7 @@ class _EditorPageState extends State<EditorPage> {
     ])),
   );
 
-  Widget palette() => Container(color: Colors.white, padding: const EdgeInsets.all(10), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+  Widget palette() => Material(color: Colors.white, child: Padding(padding: const EdgeInsets.all(10), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
     const Text('BIBLIOTHÈQUE', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
     const SizedBox(height: 6),
     DropdownButtonFormField<String>(
@@ -142,7 +142,7 @@ class _EditorPageState extends State<EditorPage> {
       title: Text(p.name, style: const TextStyle(fontSize: 12)), subtitle: Text(p.family, style: const TextStyle(fontSize: 10)),
       onTap: () => setState(() => tool = p),
     )).toList())),
-  ]));
+  ])));
 
   Widget canvas() => Column(children: [
     Container(height: 38, color: Colors.white, padding: const EdgeInsets.symmetric(horizontal: 12), child: Row(children: [
