@@ -1,0 +1,69 @@
+# ElectroDesign — architecture produit et feuille de route
+
+## Vision
+Application Flutter native Android et Windows, simple à prendre en main, utilisable par les débutants, les étudiants et les professionnels de l'électricité. L'application doit aider à produire des plans et schémas, dimensionner les installations, concevoir des tableaux, établir des devis et apprendre l'électricité.
+
+## Principes non négociables
+- Interface claire, navigation courte, vocabulaire expliqué et assistants étape par étape.
+- Trois parcours : Débutant, Étudiant et Professionnel. Les parcours adaptent l'aide et la densité des outils sans enfermer les utilisateurs.
+- Une base de données centrale partagée par les modules, avec fonctionnement hors connexion pour les fonctions essentielles.
+- Aucune tarification imposée : les prix et la devise sont toujours modifiables par l'utilisateur.
+- Ne jamais présenter un calcul ou un tableau comme conforme sans préciser le référentiel, les hypothèses et les contrôles requis.
+- La validation logicielle ne remplace pas les mesures, essais et vérifications sur site par une personne qualifiée.
+
+## Modules cibles
+1. Accueil et parcours utilisateur.
+2. Plans d'implantation électrique (symboles, calques, cotations, pièces et circuits).
+3. Schémas unifilaires et multifilaires avec connexions réelles.
+4. Métrés et dimensionnement (charges, sections, protections, chute de tension, court-circuit et mise à la terre selon données disponibles).
+5. Tableaux 2D/3D : placement manuel ou génération depuis le schéma, enveloppe, rails, modules, nomenclature et contrôles.
+6. Catalogue technique multimarque : composants domestiques, tertiaires, industriels et technologies récentes, caractéristiques, références et symboles.
+7. Devis et factures : main-d'œuvre et fournitures séparées, quantités issues des plans quand possible, prix min/moyen/max indicatifs, taxes et devise configurables.
+8. Tarifs internationaux : pays puis région/gouvernorat/ville, provenance et date de chaque prix, import/export, mode hors connexion et mise à jour sans écraser les tarifs personnalisés.
+9. Formation : cours illustrés, exercices, quiz, exemples et simulations.
+10. Rapports et exports : PDF et formats techniques à définir.
+
+## Tarification internationale
+- Détecter le pays à l'installation comme suggestion, puis demander confirmation ou permettre le choix manuel.
+- Modèle de données : pays, subdivision administrative, ville, devise, prestation ou article, unité, prix minimum/moyen/maximum, type de prix (main-d'œuvre ou fourniture), source, date de vérification et niveau de fiabilité.
+- La Tunisie doit couvrir ses 24 gouvernorats.
+- La France doit pouvoir être organisée par régions, départements et villes.
+- Étendre ensuite à d'autres pays sans modifier le moteur de devis.
+- Les catalogues non vérifiés doivent être explicitement signalés ; ne jamais inventer des prix locaux.
+- Les prix personnels de l'utilisateur sont prioritaires et ne sont jamais remplacés silencieusement.
+
+## Sécurité et normes
+- Référentiels configurables selon le pays et leur édition applicable (par exemple IEC 60364, IEC 61439, IEC 60947, IEC 60898, IEC 61008/61009, ainsi que les règles nationales applicables).
+- Contrôles à développer : surcharge, court-circuit et pouvoir de coupure, sections et chute de tension, protection différentielle, terre, sélectivité, coordination, échauffement, indice IP/IK et parafoudre.
+- Chaque alerte doit indiquer sa gravité, la donnée manquante, l'hypothèse et la référence normative.
+- Les règles doivent être testées et versionnées ; une conformité ne peut être déclarée que si toutes les données et vérifications requises sont disponibles.
+
+## Architecture logicielle recommandée
+- Séparer interface, domaine métier, données et services.
+- Modèles partagés pour projets, locaux, circuits, composants, connexions, tableaux, articles, tarifs et référentiels.
+- Stockage local pour les projets et catalogues téléchargés ; synchronisation distante facultative, avec résolution explicite des conflits.
+- Moteur de calcul et moteur de règles indépendants de l'interface.
+- Catalogue de composants extensible par fabricants, sans lier les calculs à une marque unique.
+- Tests unitaires des calculs, tests de règles normatives, tests de widgets et tests d'intégration Android/Windows.
+
+## Feuille de route proposée
+### Phase 0 — Stabiliser la base Flutter
+Vérifier compilation, analyse statique et tests Android/Windows ; corriger les problèmes de CI et garantir des artefacts reproductibles.
+
+### Phase 1 — Fondations utilisables
+Navigation simple, modes Débutant/Étudiant/Professionnel, projets enregistrables, éditeur de plans et schémas avec connexions, sauvegarde locale et export initial.
+
+### Phase 2 — Catalogue et devis
+Catalogue de composants structuré, unités et caractéristiques ; base tarifaire Tunisie (24 gouvernorats) puis modèle international ; devis avec main-d'œuvre et fournitures séparées.
+
+### Phase 3 — Calculs et sécurité
+Moteur de dimensionnement, hypothèses visibles, contrôles de sécurité versionnés et rapports d'anomalies.
+
+### Phase 4 — Tableaux 2D/3D
+Génération depuis les schémas, placement manuel, nomenclature, encombrement et vérifications.
+
+### Phase 5 — Formation et internationalisation
+Cours, exercices, langues, pays supplémentaires, catalogues régionaux vérifiés et synchronisation optionnelle.
+
+## État initial constaté
+Le dépôt contient actuellement un éditeur Flutter sur grille avec une bibliothèque de composants de départ et une CI prévue pour Android et Windows. Les connexions électriques, calculs, export, catalogue tarifaire, stockage de projets et conception 3D restent à développer. Cette feuille de route décrit la cible ; elle ne signifie pas que ces fonctions sont déjà implémentées.
