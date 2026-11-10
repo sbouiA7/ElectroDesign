@@ -10,6 +10,11 @@ Application Flutter native Android et Windows, simple à prendre en main, utilis
 - Aucune tarification imposée : les prix et la devise sont toujours modifiables par l'utilisateur.
 - Ne jamais présenter un calcul ou un tableau comme conforme sans préciser le référentiel, les hypothèses et les contrôles requis.
 - La validation logicielle ne remplace pas les mesures, essais et vérifications sur site par une personne qualifiée.
+- Modèle commercial hybride Freemium pour la Tunisie et l'international : édition gratuite utile, éditions Pro et Expert payantes, puis offre Équipe/Entreprise à étudier.
+- La monétisation ne doit jamais masquer une alerte de sécurité connue, détruire ou verrouiller les projets de l'utilisateur, ni imposer un fournisseur de paiement avant validation pays par pays.
+
+## Modèle commercial
+La stratégie détaillée, les éditions Free/Pro/Expert/Équipe, la conception des licences, le fonctionnement hors ligne, les précautions de paiement et la feuille de route de lancement sont documentés dans [docs/COMMERCIAL_STRATEGY.md](COMMERCIAL_STRATEGY.md). Aucun prix, devise par défaut, prestataire de paiement, durée d'essai ou limite chiffrée n'est encore décidé.
 
 ## Modules cibles
 1. Accueil et parcours utilisateur.
@@ -45,6 +50,7 @@ Application Flutter native Android et Windows, simple à prendre en main, utilis
 - Moteur de calcul et moteur de règles indépendants de l'interface.
 - Catalogue de composants extensible par fabricants, sans lier les calculs à une marque unique.
 - Tests unitaires des calculs, tests de règles normatives, tests de widgets et tests d'intégration Android/Windows.
+- Pour les éditions commerciales : catalogue de fonctions et service d'accès centralisé, droits signés vérifiables hors ligne, fournisseur de paiement abstrait et indépendant des modules métier. Ne jamais embarquer de clé privée de signature dans l'application.
 
 ## Feuille de route proposée
 ### Phase 0 — Stabiliser la base Flutter
@@ -64,6 +70,9 @@ Génération depuis les schémas, placement manuel, nomenclature, encombrement e
 
 ### Phase 5 — Formation et internationalisation
 Cours, exercices, langues, pays supplémentaires, catalogues régionaux vérifiés et synchronisation optionnelle.
+
+### Phase 6 — Préparation commerciale
+Définir les limites Free/Pro/Expert, implémenter le contrôle d'accès et les licences en mode test, vérifier la sécurité et le fonctionnement hors ligne, puis étudier les paiements et obligations par pays avant tout lancement commercial.
 
 ## État initial constaté
 Le dépôt contient actuellement un éditeur Flutter sur grille avec une bibliothèque de composants de départ et une CI prévue pour Android et Windows. Les connexions électriques, calculs, export, catalogue tarifaire, stockage de projets et conception 3D restent à développer. Cette feuille de route décrit la cible ; elle ne signifie pas que ces fonctions sont déjà implémentées.
