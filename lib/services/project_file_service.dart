@@ -1,42 +1,38 @@
 import 'dart:convert';
 import 'dart:typed_data';
 
-import 'package:cross_file/cross_file.dart';
-import 'package:file_selector/file_selector.dart';
+import 'package:file_picker/file_picker.dart';
 
 import '../domain/models/project_document.dart';
 
 /// Import/export of portable ElectroDesign JSON project files.
 class ProjectFileService {
-  static const _projectType = XTypeGroup(
-    label: 'Projet ElectroDesign',
-    extensions: ['json'],
-  );
-
   static Future<bool> saveProject(ProjectDocument project) async {
-    final destination = await getSaveLocation(
-      suggestedName: 'electrodesign-project.json',
-      acceptedTypeGroups: [_projectType],
-    );
-    if (destination == null) return false;
-
     final contents = const JsonEncoder.withIndent('  ').convert(project.toJson());
-    final file = XFile.fromData(
-      Uint8List.fromList(utf8.encode(contents)),
-      name: 'electrodesign-project.json',
-      mimeType: 'application/json',
+    final destination = await FilePicker.platform.saveFile(
+      dialogTitle: 'Enregistrer le projet ElectroDesign',
+      fileName: 'electrodesign-project.json',
+      type: FileType.custom,
+      allowedExtensions: ['json'],
+      bytes: Uint8List.fromList(utf8.encode(contents)),
     );
-    await file.saveTo(destination.path);
-    return true;
+    return destination != null;
   }
 
   static Future<ProjectDocument?> openProject() async {
-    final file = await openFile(
-      acceptedTypeGroups: [_projectType],
+    final result = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: ['json'],
+      allowMultiple: false,
+      withData: true,
     );
-    if (file == null) return null;
+    if (result == null || result.files.isEmpty) return null;
 
-    final decoded = jsonDecode(await file.readAsString());
+    final bytes = result.files.single.bytes;
+    if (bytes == null) {
+      throw const FormatException('Unable to read the selected project file');
+    }
+    final decoded = jsonDecode(utf8.decode(bytes));
     if (decoded is! Map<String, dynamic>) {
       throw const FormatException('Invalid ElectroDesign project file');
     }
