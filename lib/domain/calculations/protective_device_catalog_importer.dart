@@ -20,7 +20,7 @@ class ImportedBreakingCapacityRating {
   final double? voltageV;
 
   bool get isQualified =>
-      rating.trim().isNotEmpty &&
+      const {'icn', 'ics', 'icu'}.contains(rating.trim().toLowerCase()) &&
       currentA.isFinite &&
       currentA > 0 &&
       standard != null &&
