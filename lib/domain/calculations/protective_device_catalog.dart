@@ -34,40 +34,32 @@ class ManufacturerDocumentReference {
   final String sourceUrl;
   final String documentRevision;
   final String language;
-
-  /// Date the source was checked, in ISO-8601 YYYY-MM-DD format.
   final String retrievedOn;
-
-  /// Optional publication date, in ISO-8601 YYYY-MM-DD format.
   final String? publicationDate;
-
-  /// Pages, tables or figures supporting the populated values.
   final List<String> pageReferences;
 
   bool get hasTraceableSource =>
       title.trim().isNotEmpty &&
-      _isHttpUrl(sourceUrl) &&
+      _isHttpsUrl(sourceUrl) &&
       documentRevision.trim().isNotEmpty &&
       language.trim().isNotEmpty &&
       _isIsoDate(retrievedOn) &&
-      (publicationDate == null || _isIsoDate(publicationDate!));
+      (publicationDate == null || _isIsoDate(publicationDate!)) &&
+      pageReferences.isNotEmpty &&
+      pageReferences.every((page) => page.trim().isNotEmpty);
 
-  static bool _isHttpUrl(String value) {
+  static bool _isHttpsUrl(String value) {
     final uri = Uri.tryParse(value);
-    return uri != null &&
-        (uri.scheme == 'https' || uri.scheme == 'http') &&
-        uri.host.isNotEmpty;
+    return uri != null && uri.scheme == 'https' && uri.host.isNotEmpty;
   }
 
-  static bool _isIsoDate(String value) =>
-      RegExp(r'^\\d{4}-\\d{2}-\\d{2}$').hasMatch(value);
+  static bool _isIsoDate(String value) {
+    final parsed = DateTime.tryParse(value);
+    return parsed != null &&
+        parsed.toIso8601String().substring(0, 10) == value;
+  }
 }
 
-/// A specific device model in a manufacturer's product range.
-///
-/// Ratings are nullable because not every category uses every field. A
-/// catalogue importer must still validate the fields required by the intended
-/// calculation before using this record.
 class ProtectiveDeviceCatalogEntry {
   const ProtectiveDeviceCatalogEntry({
     required this.manufacturer,
@@ -84,6 +76,7 @@ class ProtectiveDeviceCatalogEntry {
     this.poleCount,
     this.breakingCapacityA,
     this.breakingCapacityStandard,
+    this.breakingCapacityVoltageV,
     this.residualCurrentType,
     this.residualOperatingCurrentA,
     this.selectivityLimitA,
@@ -97,37 +90,26 @@ class ProtectiveDeviceCatalogEntry {
   final String productFamily;
   final ProtectiveDeviceCategory category;
   final String? description;
-
-  /// Manufacturer-rated current or configured setting, where applicable.
   final double? ratedCurrentA;
-
   final double? ratedOperationalVoltageV;
   final double? ratedInsulationVoltageV;
   final double? ratedImpulseWithstandVoltageKv;
   final int? poleCount;
-
-  /// Icn, Icu or another declared breaking rating. Interpret only together
-  /// with [breakingCapacityStandard] and the exact voltage/configuration.
   final double? breakingCapacityA;
   final String? breakingCapacityStandard;
 
+  /// Voltage condition belonging to Icn/Icu/Ics; distinct from device Ue.
+  final double? breakingCapacityVoltageV;
+
   final ResidualCurrentDeviceType? residualCurrentType;
   final double? residualOperatingCurrentA;
-
-  /// Declared selectivity limit for a specified upstream/downstream pair.
-  /// It must not be treated as a universal property of this device alone.
   final double? selectivityLimitA;
-
-  /// Optional time/current envelope, if transcribed from the cited document.
   final ProtectiveDeviceCurve? curve;
-
   final String? catalogueRevision;
   final List<String> standardReferences;
   final List<String>? configurationNotes;
   final ManufacturerDocumentReference document;
 
-  /// Basic record integrity only; not an electrical suitability or compliance
-  /// check. Calculation-specific validation remains mandatory.
   bool get hasValidIdentityAndSource =>
       manufacturer.trim().isNotEmpty &&
       productReference.trim().isNotEmpty &&
@@ -140,6 +122,7 @@ class ProtectiveDeviceCatalogEntry {
       _optionalPositive(ratedInsulationVoltageV) &&
       _optionalPositive(ratedImpulseWithstandVoltageKv) &&
       _optionalPositive(breakingCapacityA) &&
+      _optionalPositive(breakingCapacityVoltageV) &&
       _optionalPositive(residualOperatingCurrentA) &&
       _optionalPositive(selectivityLimitA) &&
       (poleCount == null || poleCount! > 0);
@@ -149,7 +132,7 @@ class ProtectiveDeviceCatalogEntry {
       breakingCapacityA != null &&
       breakingCapacityStandard != null &&
       breakingCapacityStandard!.trim().isNotEmpty &&
-      ratedOperationalVoltageV != null;
+      (breakingCapacityVoltageV ?? ratedOperationalVoltageV) != null;
 
   bool get hasResidualCurrentData =>
       hasValidIdentityAndSource &&
@@ -168,8 +151,6 @@ class ProtectiveDeviceCatalogEntry {
       value == null || (value.isFinite && value > 0);
 }
 
-/// Catalogue metadata makes updates reviewable and avoids silently mixing
-/// product data from different document revisions.
 class ProtectiveDeviceCatalogueMetadata {
   const ProtectiveDeviceCatalogueMetadata({
     required this.catalogueVersion,
@@ -183,7 +164,8 @@ class ProtectiveDeviceCatalogueMetadata {
 
   bool get hasValidMetadata =>
       catalogueVersion.trim().isNotEmpty &&
-      RegExp(r'^\\d{4}-\\d{2}-\\d{2}$').hasMatch(updatedOn) &&
+      DateTime.tryParse(updatedOn)?.toIso8601String().substring(0, 10) ==
+          updatedOn &&
       entries.every((entry) => entry.hasValidIdentityAndSource);
 
   List<ProtectiveDeviceCatalogEntry> entriesForManufacturer(
