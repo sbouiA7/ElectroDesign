@@ -57,7 +57,8 @@ class _EditorPageState extends State<EditorPage> {
       }
       final target = placed[hit];
       if (target.part.terminals.isEmpty) {
-        _showMessage('Aucune borne configurée pour « ${target.part.name} ». Configurez ses bornes dans Propriétés.');
+        setState(() => selected = hit);
+        _showMessage('Aucune borne configurée pour « ${target.part.name} ». Ajoutez ses bornes dans Propriétés, puis reprenez le câblage.');
         return;
       }
       final terminal = await _chooseTerminal(target);
@@ -382,7 +383,7 @@ class _EditorPageState extends State<EditorPage> {
           return Column(children: [
             SizedBox(height: 185, child: palette()),
             Expanded(child: canvas()),
-            SizedBox(height: 150, child: properties())
+            SizedBox(height: 200, child: properties())
           ]);
         }),
         bottomNavigationBar: BottomAppBar(
