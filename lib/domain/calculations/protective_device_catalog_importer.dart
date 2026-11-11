@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+import 'package:flutter/services.dart';
+
 import 'protective_device_catalog.dart';
 
 /// A manufacturer-declared breaking rating, kept separate because Icn, Ics
@@ -91,7 +93,10 @@ class ImportedProtectiveDeviceRecord {
       productFamily: productFamily,
       category: category,
       document: document,
-      standardReferences: standardReferences,
+      standardReferences: {
+        ...standardReferences,
+        if (rating.standard != null) rating.standard!,
+      }.toList(growable: false),
       ratedCurrentA: ratedCurrentA,
       ratedOperationalVoltageV: operationalVoltageV,
       poleCount: poleCount,
@@ -111,6 +116,26 @@ class ImportedProtectiveDeviceRecord {
 /// shapes. Unknown/malformed records fail closed instead of guessing units.
 class ProtectiveDeviceCatalogImporter {
   const ProtectiveDeviceCatalogImporter();
+
+  static const bundledAssetPaths = [
+    'docs/catalogues/data/abb-s202muc-c2.json',
+    'docs/catalogues/data/legrand-btdin60-fn881c16.json',
+    'docs/catalogues/data/hager-mbn350a.json',
+    'docs/catalogues/data/somef-801106cx20.json',
+  ];
+
+  /// Loads the checked-in source records from Flutter's asset bundle.
+  /// Each record remains documentary until a qualified rating is selected.
+  Future<List<ImportedProtectiveDeviceRecord>> loadBundledRecords({
+    AssetBundle? bundle,
+  }) async {
+    final assetBundle = bundle ?? rootBundle;
+    final records = <ImportedProtectiveDeviceRecord>[];
+    for (final path in bundledAssetPaths) {
+      records.add(parse(await assetBundle.loadString(path)));
+    }
+    return List.unmodifiable(records);
+  }
 
   ImportedProtectiveDeviceRecord parse(String sourceJson) {
     final decoded = jsonDecode(sourceJson);
