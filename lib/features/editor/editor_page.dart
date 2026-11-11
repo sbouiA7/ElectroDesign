@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../data/catalog/component_library.dart';
 import '../../domain/models/electrical_part.dart';
+import '../../domain/models/electrical_terminal.dart';
 import '../../domain/models/project_document.dart';
 import '../../services/project_file_service.dart';
 import 'widgets/grid_painter.dart';
@@ -17,6 +18,7 @@ class _EditorPageState extends State<EditorPage> {
   final connections = <ProjectConnection>[];
   bool wiringMode = false;
   int? wireStart;
+  String? wireStartTerminal;
   Part tool = library.first;
   int? selected;
   String family = 'Toutes';
@@ -35,7 +37,7 @@ class _EditorPageState extends State<EditorPage> {
         selected = placed.length - 1;
       });
 
-  void _handleCanvasTap(Offset point) {
+  Future<void> _handleCanvasTap(Offset point) async {
     var hit = -1;
     for (var i = placed.length - 1; i >= 0; i--) {
       if ((placed[i].position - point).distance <= 34) {
@@ -46,48 +48,70 @@ class _EditorPageState extends State<EditorPage> {
 
     if (wiringMode) {
       if (hit < 0) {
-        setState(() => wireStart = null);
+        setState(() {
+          wireStart = null;
+          wireStartTerminal = null;
+        });
         _showMessage('Choisissez un composant pour commencer le câble.');
         return;
       }
+      final target = placed[hit];
+      if (target.part.terminals.isEmpty) {
+        _showMessage('Aucune borne configurée pour « ${target.part.name} ». Configurez ses bornes dans Propriétés.');
+        return;
+      }
+      final terminal = await _chooseTerminal(target);
+      if (!mounted || terminal == null) return;
+
       if (wireStart == null) {
         setState(() {
           wireStart = hit;
+          wireStartTerminal = terminal.id;
           selected = hit;
         });
-        _showMessage('Point de départ choisi. Touchez le composant d’arrivée.');
+        _showMessage('Borne de départ choisie. Sélectionnez le composant d’arrivée.');
         return;
       }
-      if (wireStart == hit) {
-        setState(() => wireStart = null);
+      if (wireStart == hit && wireStartTerminal == terminal.id) {
+        setState(() {
+          wireStart = null;
+          wireStartTerminal = null;
+        });
         return;
       }
+
       final fromId = placed[wireStart!].id;
-      final toId = placed[hit].id;
-      final exists = connections.any(
-        (connection) =>
-            (connection.fromComponentId == fromId &&
-                connection.toComponentId == toId) ||
-            (connection.fromComponentId == toId &&
-                connection.toComponentId == fromId),
-      );
+      final toId = target.id;
+      final exists = connections.any((connection) =>
+          connection.fromComponentId == fromId &&
+              connection.fromTerminal == wireStartTerminal &&
+              connection.toComponentId == toId &&
+              connection.toTerminal == terminal.id ||
+          connection.fromComponentId == toId &&
+              connection.fromTerminal == terminal.id &&
+              connection.toComponentId == fromId &&
+              connection.toTerminal == wireStartTerminal);
       if (exists) {
-        setState(() => wireStart = null);
-        _showMessage('Une liaison existe déjà entre ces composants.');
+        setState(() {
+          wireStart = null;
+          wireStartTerminal = null;
+        });
+        _showMessage('Cette liaison existe déjà.');
         return;
       }
       setState(() {
         connections.add(ProjectConnection(
           id: 'connection-${DateTime.now().microsecondsSinceEpoch}',
           fromComponentId: fromId,
-          fromTerminal: 'A',
+          fromTerminal: wireStartTerminal!,
           toComponentId: toId,
-          toTerminal: 'B',
+          toTerminal: terminal.id,
         ));
         selected = hit;
         wireStart = null;
+        wireStartTerminal = null;
       });
-      _showMessage('Liaison ajoutée.');
+      _showMessage('Liaison ajoutée entre deux bornes réelles.');
       return;
     }
 
@@ -96,6 +120,104 @@ class _EditorPageState extends State<EditorPage> {
     } else {
       add(point);
     }
+  }
+
+  Future<ElectricalTerminal?> _chooseTerminal(PlacedPart item) {
+    return showDialog<ElectricalTerminal>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: Text('Choisir une borne — ${item.part.name}'),
+        content: SizedBox(
+          width: 320,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: item.part.terminals.map((terminal) => ListTile(
+              leading: const Icon(Icons.electrical_services),
+              title: Text(terminal.label),
+              subtitle: Text('Repère : ${terminal.id}'),
+              onTap: () => Navigator.of(dialogContext).pop(terminal),
+            )).toList(),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Future<void> _configureTerminals() async {
+    if (selected == null || selected! >= placed.length) return;
+    final item = placed[selected!];
+    final labelController = TextEditingController();
+    var position = 'Gauche';
+    final terminal = await showDialog<ElectricalTerminal>(
+      context: context,
+      builder: (dialogContext) => StatefulBuilder(
+        builder: (context, refreshDialog) => AlertDialog(
+          title: Text('Ajouter une borne — ${item.part.name}'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: labelController,
+                autofocus: true,
+                decoration: const InputDecoration(
+                  labelText: 'Repère / libellé (ex. L, N, 1, 2)',
+                ),
+              ),
+              const SizedBox(height: 12),
+              DropdownButtonFormField<String>(
+                initialValue: position,
+                decoration: const InputDecoration(labelText: 'Position sur le symbole'),
+                items: const ['Gauche', 'Droite', 'Haut', 'Bas']
+                    .map((value) => DropdownMenuItem(value: value, child: Text(value)))
+                    .toList(),
+                onChanged: (value) => refreshDialog(() => position = value ?? 'Gauche'),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(),
+              child: const Text('Annuler'),
+            ),
+            FilledButton(
+              onPressed: () {
+                final label = labelController.text.trim();
+                if (label.isEmpty) return;
+                final coordinates = switch (position) {
+                  'Droite' => (1.0, 0.5),
+                  'Haut' => (0.5, 0.0),
+                  'Bas' => (0.5, 1.0),
+                  _ => (0.0, 0.5),
+                };
+                Navigator.of(dialogContext).pop(ElectricalTerminal(
+                  id: 'terminal-${DateTime.now().microsecondsSinceEpoch}',
+                  label: label,
+                  x: coordinates.$1,
+                  y: coordinates.$2,
+                ));
+              },
+              child: const Text('Ajouter'),
+            ),
+          ],
+        ),
+      ),
+    );
+    labelController.dispose();
+    if (!mounted || terminal == null) return;
+    final updatedPart = Part(
+      item.part.name,
+      item.part.family,
+      item.part.symbol,
+      item.part.details,
+      terminals: [...item.part.terminals, terminal],
+    );
+    setState(() {
+      placed[selected!] = PlacedPart(updatedPart, item.position, id: item.id);
+      // Keep the palette selection in sync when configuring the selected tool.
+      if (tool.name == item.part.name && tool.family == item.part.family) {
+        tool = updatedPart;
+      }
+    });
   }
 
   void remove() {
@@ -108,6 +230,7 @@ class _EditorPageState extends State<EditorPage> {
       placed.removeAt(selected!);
       selected = null;
       wireStart = null;
+      wireStartTerminal = null;
     });
   }
 
@@ -134,6 +257,7 @@ class _EditorPageState extends State<EditorPage> {
               family: item.part.family,
               symbol: item.part.symbol,
               details: item.part.details,
+              terminals: item.part.terminals,
               x: item.position.dx,
               y: item.position.dy,
             ),
@@ -159,8 +283,10 @@ class _EditorPageState extends State<EditorPage> {
         final part = matching.isNotEmpty
             ? matching.first
             : Part(component.name, component.family, component.symbol,
-                component.details);
-        return PlacedPart(part, Offset(component.x, component.y), id: component.id);
+                component.details, terminals: component.terminals);
+        final restoredPart = Part(part.name, part.family, part.symbol, part.details,
+            terminals: component.terminals.isNotEmpty ? component.terminals : part.terminals);
+        return PlacedPart(restoredPart, Offset(component.x, component.y), id: component.id);
       }).toList();
       final restoredConnections = document.connections;
 
@@ -173,6 +299,7 @@ class _EditorPageState extends State<EditorPage> {
           ..addAll(restoredConnections);
         wiringMode = false;
         wireStart = null;
+        wireStartTerminal = null;
         selected = null;
         projectId = document.id;
         projectName = document.name;
@@ -189,6 +316,7 @@ class _EditorPageState extends State<EditorPage> {
         connections.clear();
         wiringMode = false;
         wireStart = null;
+        wireStartTerminal = null;
         selected = null;
         projectId = 'project-${DateTime.now().microsecondsSinceEpoch}';
         projectName = 'Mon schéma';
@@ -224,6 +352,7 @@ class _EditorPageState extends State<EditorPage> {
               onPressed: () => setState(() {
                 wiringMode = !wiringMode;
                 wireStart = null;
+                wireStartTerminal = null;
               }),
               icon: Icon(wiringMode ? Icons.close : Icons.cable),
             ),
@@ -385,6 +514,14 @@ class _EditorPageState extends State<EditorPage> {
                         style: const TextStyle(fontSize: 11)),
                     Text('Symbole : ${item.part.symbol}',
                         style: const TextStyle(fontSize: 11)),
+                    Text('Bornes configurées : ${item.part.terminals.length}',
+                        style: const TextStyle(fontSize: 11)),
+                    Align(
+                        alignment: Alignment.centerLeft,
+                        child: TextButton.icon(
+                            onPressed: _configureTerminals,
+                            icon: const Icon(Icons.add_circle_outline),
+                            label: const Text('Configurer une borne'))),
                     Align(
                         alignment: Alignment.centerRight,
                         child: TextButton.icon(
