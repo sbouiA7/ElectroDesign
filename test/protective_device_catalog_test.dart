@@ -25,6 +25,7 @@ void main() {
     double? breakingCapacityA = 10000,
     String? breakingCapacityStandard = 'IEC 60898-1',
     double? ratedVoltageV = 230,
+    double? breakingVoltageV = 230,
     ResidualCurrentDeviceType? rcdType,
     double? residualCurrentA,
     ProtectiveDeviceCurve? curve,
@@ -43,6 +44,7 @@ void main() {
       poleCount: 2,
       breakingCapacityA: breakingCapacityA,
       breakingCapacityStandard: breakingCapacityStandard,
+      breakingCapacityVoltageV: breakingVoltageV,
       residualCurrentType: rcdType,
       residualOperatingCurrentA: residualCurrentA,
       curve: curve,
@@ -73,13 +75,13 @@ void main() {
     );
   });
 
-  test('breaking capacity requires rating standard and rated voltage', () {
+  test('breaking capacity requires rating standard and explicit test voltage', () {
     expect(
       entry(breakingCapacityStandard: null).hasBreakingCapacityData,
       isFalse,
     );
     expect(
-      entry(ratedVoltageV: null).hasBreakingCapacityData,
+      entry(breakingVoltageV: null).hasBreakingCapacityData,
       isFalse,
     );
   });
