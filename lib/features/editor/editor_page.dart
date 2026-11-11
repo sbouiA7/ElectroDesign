@@ -340,9 +340,9 @@ class _EditorPageState extends State<EditorPage> {
           onTapDown: (d) => _handleCanvasTap(d.localPosition),
           child: CustomPaint(
               painter: GridPainter(
-                placed,
+                List<PlacedPart>.of(placed),
                 selected,
-                connections: connections,
+                connections: List<ProjectConnection>.of(connections),
                 pendingWireStart: wireStart,
               ),
               child: const SizedBox.expand()),
