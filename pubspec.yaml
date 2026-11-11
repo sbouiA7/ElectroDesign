@@ -7,6 +7,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  cross_file: ^0.3.4+2
+  file_selector: ^1.0.3
 dev_dependencies:
   flutter_test:
     sdk: flutter
