@@ -35,8 +35,6 @@ class _EditorPageState extends State<EditorPage> {
         selected = placed.length - 1;
       });
 
-  String _componentId(int index) => 'component-${index + 1}';
-
   void _handleCanvasTap(Offset point) {
     var hit = -1;
     for (var i = placed.length - 1; i >= 0; i--) {
@@ -64,8 +62,8 @@ class _EditorPageState extends State<EditorPage> {
         setState(() => wireStart = null);
         return;
       }
-      final fromId = _componentId(wireStart!);
-      final toId = _componentId(hit);
+      final fromId = placed[wireStart!].id;
+      final toId = placed[hit].id;
       final exists = connections.any(
         (connection) =>
             (connection.fromComponentId == fromId &&
@@ -102,27 +100,12 @@ class _EditorPageState extends State<EditorPage> {
 
   void remove() {
     if (selected == null) return;
-    final removedId = _componentId(selected!);
+    final removedId = placed[selected!].id;
     setState(() {
       connections.removeWhere((connection) =>
           connection.fromComponentId == removedId ||
           connection.toComponentId == removedId);
       placed.removeAt(selected!);
-      for (var i = 0; i < connections.length; i++) {
-        final connection = connections[i];
-        int remap(String id) {
-          final oldIndex = int.parse(id.substring('component-'.length)) - 1;
-          return _componentId(oldIndex > selected! ? oldIndex - 1 : oldIndex);
-        }
-        connections[i] = ProjectConnection(
-          id: connection.id,
-          fromComponentId: remap(connection.fromComponentId),
-          fromTerminal: connection.fromTerminal,
-          toComponentId: remap(connection.toComponentId),
-          toTerminal: connection.toTerminal,
-          conductor: connection.conductor,
-        );
-      }
       selected = null;
       wireStart = null;
     });
@@ -144,9 +127,9 @@ class _EditorPageState extends State<EditorPage> {
         createdAt: projectCreatedAt,
         updatedAt: now.isBefore(projectCreatedAt) ? projectCreatedAt : now,
         components: [
-          for (var i = 0; i < placed.length; i++)
+          for (final item in placed)
             ProjectComponent(
-              id: 'component-${i + 1}',
+              id: item.id,
               name: placed[i].part.name,
               family: placed[i].part.family,
               symbol: placed[i].part.symbol,
@@ -177,24 +160,9 @@ class _EditorPageState extends State<EditorPage> {
             ? matching.first
             : Part(component.name, component.family, component.symbol,
                 component.details);
-        return PlacedPart(part, Offset(component.x, component.y));
+        return PlacedPart(part, Offset(component.x, component.y), id: component.id);
       }).toList();
-      final componentIndexes = {
-        for (var i = 0; i < document.components.length; i++)
-          document.components[i].id: i,
-      };
-      final restoredConnections = document.connections.map((connection) {
-        final fromIndex = componentIndexes[connection.fromComponentId]!;
-        final toIndex = componentIndexes[connection.toComponentId]!;
-        return ProjectConnection(
-          id: connection.id,
-          fromComponentId: _componentId(fromIndex),
-          fromTerminal: connection.fromTerminal,
-          toComponentId: _componentId(toIndex),
-          toTerminal: connection.toTerminal,
-          conductor: connection.conductor,
-        );
-      }).toList();
+      final restoredConnections = document.connections;
 
       setState(() {
         placed
