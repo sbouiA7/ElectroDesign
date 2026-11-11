@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../data/catalog/component_library.dart';
+import '../catalog/protective_device_catalog_page.dart';
 import '../../domain/models/electrical_part.dart';
 import '../../domain/models/electrical_terminal.dart';
 import '../../domain/models/project_document.dart';
@@ -339,6 +340,13 @@ class _EditorPageState extends State<EditorPage> {
             Text('ElectroDesign')
           ]),
           actions: [
+            IconButton(
+              tooltip: 'Catalogue des protections',
+              onPressed: () => Navigator.of(context).push(MaterialPageRoute(
+                builder: (_) => const ProtectiveDeviceCatalogPage(),
+              )),
+              icon: const Icon(Icons.inventory_2_outlined),
+            ),
             IconButton(
               tooltip: 'Nouveau schéma',
               onPressed: _newProject,
