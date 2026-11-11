@@ -179,6 +179,22 @@ class _EditorPageState extends State<EditorPage> {
                 component.details);
         return PlacedPart(part, Offset(component.x, component.y));
       }).toList();
+      final componentIndexes = {
+        for (var i = 0; i < document.components.length; i++)
+          document.components[i].id: i,
+      };
+      final restoredConnections = document.connections.map((connection) {
+        final fromIndex = componentIndexes[connection.fromComponentId]!;
+        final toIndex = componentIndexes[connection.toComponentId]!;
+        return ProjectConnection(
+          id: connection.id,
+          fromComponentId: _componentId(fromIndex),
+          fromTerminal: connection.fromTerminal,
+          toComponentId: _componentId(toIndex),
+          toTerminal: connection.toTerminal,
+          conductor: connection.conductor,
+        );
+      }).toList();
 
       setState(() {
         placed
@@ -186,7 +202,7 @@ class _EditorPageState extends State<EditorPage> {
           ..addAll(restored);
         connections
           ..clear()
-          ..addAll(document.connections);
+          ..addAll(restoredConnections);
         wiringMode = false;
         wireStart = null;
         selected = null;
