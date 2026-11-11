@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'dart:typed_data';
 
-import 'package:cross_file/cross_file.dart';
 import 'package:file_selector/file_selector.dart';
 
 import '../domain/models/project_document.dart';
