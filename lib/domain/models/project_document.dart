@@ -11,6 +11,13 @@ class ProjectComponent {
     required this.x,
     required this.y,
     this.terminals = const [],
+    this.protectiveDeviceManufacturer,
+    this.protectiveDeviceReference,
+    this.protectiveDeviceRatingType,
+    this.protectiveDeviceBreakingCapacityA,
+    this.protectiveDeviceBreakingStandard,
+    this.protectiveDeviceBreakingVoltageV,
+    this.protectiveDeviceRatedCurrentA,
   });
 
   final String id;
@@ -23,6 +30,13 @@ class ProjectComponent {
 
   /// Empty means that no verified or user-configured terminal layout is known.
   final List<ElectricalTerminal> terminals;
+  final String? protectiveDeviceManufacturer;
+  final String? protectiveDeviceReference;
+  final String? protectiveDeviceRatingType;
+  final double? protectiveDeviceBreakingCapacityA;
+  final String? protectiveDeviceBreakingStandard;
+  final double? protectiveDeviceBreakingVoltageV;
+  final double? protectiveDeviceRatedCurrentA;
 
   Map<String, Object?> toJson() => {
         'id': id,
@@ -33,6 +47,13 @@ class ProjectComponent {
         'x': x,
         'y': y,
         'terminals': terminals.map((item) => item.toJson()).toList(),
+        'protectiveDeviceManufacturer': protectiveDeviceManufacturer,
+        'protectiveDeviceReference': protectiveDeviceReference,
+        'protectiveDeviceRatingType': protectiveDeviceRatingType,
+        'protectiveDeviceBreakingCapacityA': protectiveDeviceBreakingCapacityA,
+        'protectiveDeviceBreakingStandard': protectiveDeviceBreakingStandard,
+        'protectiveDeviceBreakingVoltageV': protectiveDeviceBreakingVoltageV,
+        'protectiveDeviceRatedCurrentA': protectiveDeviceRatedCurrentA,
       };
 
   factory ProjectComponent.fromJson(Map<String, dynamic> json) {
@@ -53,6 +74,13 @@ class ProjectComponent {
                 Map<String, dynamic>.from(item as Map),
               ))
           .toList(),
+      protectiveDeviceManufacturer: json['protectiveDeviceManufacturer'] as String?,
+      protectiveDeviceReference: json['protectiveDeviceReference'] as String?,
+      protectiveDeviceRatingType: json['protectiveDeviceRatingType'] as String?,
+      protectiveDeviceBreakingCapacityA: _optionalNumber(json, 'protectiveDeviceBreakingCapacityA'),
+      protectiveDeviceBreakingStandard: json['protectiveDeviceBreakingStandard'] as String?,
+      protectiveDeviceBreakingVoltageV: _optionalNumber(json, 'protectiveDeviceBreakingVoltageV'),
+      protectiveDeviceRatedCurrentA: _optionalNumber(json, 'protectiveDeviceRatedCurrentA'),
     );
   }
 }
@@ -111,7 +139,7 @@ class ProjectDocument {
     validate();
   }
 
-  static const currentSchemaVersion = 2;
+  static const currentSchemaVersion = 3;
 
   final int schemaVersion;
   final String id;
@@ -133,7 +161,7 @@ class ProjectDocument {
 
   factory ProjectDocument.fromJson(Map<String, dynamic> json) {
     final version = json['schemaVersion'];
-    if (version != 1 && version != currentSchemaVersion) {
+    if (version != 1 && version != 2 && version != currentSchemaVersion) {
       throw FormatException('Unsupported project schema version: $version');
     }
 
@@ -177,6 +205,23 @@ class ProjectDocument {
     }
 
     for (final component in components) {
+      final hasProtectionIdentity =
+          component.protectiveDeviceManufacturer != null ||
+          component.protectiveDeviceReference != null;
+      if (hasProtectionIdentity &&
+          (component.protectiveDeviceManufacturer?.trim().isEmpty != false ||
+              component.protectiveDeviceReference?.trim().isEmpty != false)) {
+        throw const FormatException('Assigned protective device identity is incomplete');
+      }
+      for (final value in [
+        component.protectiveDeviceBreakingCapacityA,
+        component.protectiveDeviceBreakingVoltageV,
+        component.protectiveDeviceRatedCurrentA,
+      ]) {
+        if (value != null && (!value.isFinite || value <= 0)) {
+          throw const FormatException('Assigned protective device ratings must be positive');
+        }
+      }
       final terminalIds = component.terminals.map((terminal) => terminal.id).toSet();
       if (terminalIds.length != component.terminals.length ||
           terminalIds.any((id) => id.trim().isEmpty)) {
@@ -233,6 +278,15 @@ String _requiredString(Map<String, dynamic> json, String key) {
     throw FormatException('Missing or invalid project field: $key');
   }
   return value;
+}
+
+double? _optionalNumber(Map<String, dynamic> json, String key) {
+  final value = json[key];
+  if (value == null) return null;
+  if (value is! num || !value.toDouble().isFinite) {
+    throw FormatException('Invalid optional project field: $key');
+  }
+  return value.toDouble();
 }
 
 double _requiredNumber(Map<String, dynamic> json, String key) {
