@@ -1,12 +1,23 @@
 import 'dart:ui';
 
+import 'electrical_terminal.dart';
+
 class Part {
-  const Part(this.name, this.family, this.symbol, this.details);
+  const Part(
+    this.name,
+    this.family,
+    this.symbol,
+    this.details, {
+    this.terminals = const [],
+  });
 
   final String name;
   final String family;
   final String symbol;
   final String details;
+
+  /// Only verified catalogue terminals or terminals configured by the user.
+  final List<ElectricalTerminal> terminals;
 }
 
 class PlacedPart {
