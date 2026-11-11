@@ -5,6 +5,7 @@ import '../catalog/protective_device_catalog_page.dart';
 import '../../domain/models/electrical_part.dart';
 import '../../domain/models/electrical_terminal.dart';
 import '../../domain/models/project_document.dart';
+import '../../domain/calculations/protective_device_catalog_importer.dart';
 import '../../services/project_file_service.dart';
 import 'widgets/grid_painter.dart';
 
@@ -220,12 +221,88 @@ class _EditorPageState extends State<EditorPage> {
       terminals: [...item.part.terminals, terminal],
     );
     setState(() {
-      placed[selected!] = PlacedPart(updatedPart, item.position, id: item.id);
+      placed[selected!] = item.copyWith(part: updatedPart);
       // Keep the palette selection in sync when configuring the selected tool.
       if (tool.name == item.part.name && tool.family == item.part.family) {
         tool = updatedPart;
       }
     });
+  }
+
+  Future<void> _assignProtectiveDevice() async {
+    if (selected == null || selected! >= placed.length) return;
+    final importer = const ProtectiveDeviceCatalogImporter();
+    try {
+      final records = await importer.loadBundledRecords();
+      if (!mounted) return;
+      final candidates = records.where((record) =>
+          record.hasValidIdentity &&
+          record.breakingRatings.any((rating) => rating.isQualified)).toList();
+      final chosen = await showDialog<ImportedProtectiveDeviceRecord>(
+        context: context,
+        builder: (dialogContext) => AlertDialog(
+          title: const Text('Choisir une protection fabricant'),
+          content: SizedBox(
+            width: 420,
+            height: 320,
+            child: ListView(
+              children: candidates.map((record) => ListTile(
+                title: Text('${record.manufacturer} — ${record.productReference}'),
+                subtitle: Text('${record.ratedCurrentA} A • ${record.poleCount ?? '—'}P • ${record.productFamily}'),
+                onTap: () => Navigator.of(dialogContext).pop(record),
+              )).toList(),
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(),
+              child: const Text('Annuler'),
+            ),
+          ],
+        ),
+      );
+      if (!mounted || chosen == null) return;
+      final qualifiedRatings = chosen.breakingRatings.where((rating) => rating.isQualified).toList();
+      final rating = await showDialog<ImportedBreakingCapacityRating>(
+        context: context,
+        builder: (dialogContext) => AlertDialog(
+          title: Text('Choisir le pouvoir de coupure — ${chosen.productReference}'),
+          content: SizedBox(
+            width: 420,
+            height: 280,
+            child: ListView(
+              children: qualifiedRatings.map((value) => ListTile(
+                title: Text('${value.rating} • ${value.currentA.toStringAsFixed(0)} A'),
+                subtitle: Text('${value.standard} • ${value.voltageV!.toStringAsFixed(0)} V'),
+                onTap: () => Navigator.of(dialogContext).pop(value),
+              )).toList(),
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(),
+              child: const Text('Annuler'),
+            ),
+          ],
+        ),
+      );
+      if (!mounted || rating == null) return;
+      final item = placed[selected!];
+      setState(() {
+        placed[selected!] = item.copyWith(
+          protectiveDeviceManufacturer: chosen.manufacturer,
+          protectiveDeviceReference: chosen.productReference,
+          protectiveDeviceRatingType: rating.rating.trim().toUpperCase(),
+          protectiveDeviceBreakingCapacityA: rating.currentA,
+          protectiveDeviceBreakingStandard: rating.standard,
+          protectiveDeviceBreakingVoltageV: rating.voltageV,
+          protectiveDeviceRatedCurrentA: chosen.ratedCurrentA,
+        );
+      });
+      _showMessage('Protection affectée au composant. Enregistrez le projet pour conserver cette affectation.');
+    } catch (error) {
+      _showMessage('Catalogue indisponible : $error');
+    }
   }
 
   void remove() {
@@ -266,6 +343,13 @@ class _EditorPageState extends State<EditorPage> {
               symbol: item.part.symbol,
               details: item.part.details,
               terminals: item.part.terminals,
+              protectiveDeviceManufacturer: item.protectiveDeviceManufacturer,
+              protectiveDeviceReference: item.protectiveDeviceReference,
+              protectiveDeviceRatingType: item.protectiveDeviceRatingType,
+              protectiveDeviceBreakingCapacityA: item.protectiveDeviceBreakingCapacityA,
+              protectiveDeviceBreakingStandard: item.protectiveDeviceBreakingStandard,
+              protectiveDeviceBreakingVoltageV: item.protectiveDeviceBreakingVoltageV,
+              protectiveDeviceRatedCurrentA: item.protectiveDeviceRatedCurrentA,
               x: item.position.dx,
               y: item.position.dy,
             ),
@@ -294,7 +378,18 @@ class _EditorPageState extends State<EditorPage> {
                 component.details, terminals: component.terminals);
         final restoredPart = Part(part.name, part.family, part.symbol, part.details,
             terminals: component.terminals.isNotEmpty ? component.terminals : part.terminals);
-        return PlacedPart(restoredPart, Offset(component.x, component.y), id: component.id);
+        return PlacedPart(
+          restoredPart,
+          Offset(component.x, component.y),
+          id: component.id,
+          protectiveDeviceManufacturer: component.protectiveDeviceManufacturer,
+          protectiveDeviceReference: component.protectiveDeviceReference,
+          protectiveDeviceRatingType: component.protectiveDeviceRatingType,
+          protectiveDeviceBreakingCapacityA: component.protectiveDeviceBreakingCapacityA,
+          protectiveDeviceBreakingStandard: component.protectiveDeviceBreakingStandard,
+          protectiveDeviceBreakingVoltageV: component.protectiveDeviceBreakingVoltageV,
+          protectiveDeviceRatedCurrentA: component.protectiveDeviceRatedCurrentA,
+        );
       }).toList();
       final restoredConnections = document.connections;
 
@@ -531,6 +626,19 @@ class _EditorPageState extends State<EditorPage> {
                         style: const TextStyle(fontSize: 11)),
                     Text('Bornes configurées : ${item.part.terminals.length}',
                         style: const TextStyle(fontSize: 11)),
+                    if (item.protectiveDeviceReference != null)
+                      Text(
+                        'Protection : ${item.protectiveDeviceManufacturer} ${item.protectiveDeviceReference} — ${item.protectiveDeviceRatingType} ${item.protectiveDeviceBreakingCapacityA?.toStringAsFixed(0) ?? '—'} A',
+                        style: const TextStyle(fontSize: 11),
+                      ),
+                    Align(
+                        alignment: Alignment.centerLeft,
+                        child: TextButton.icon(
+                            onPressed: _assignProtectiveDevice,
+                            icon: const Icon(Icons.shield_outlined),
+                            label: Text(item.protectiveDeviceReference == null
+                                ? 'Affecter une protection'
+                                : 'Modifier la protection'))),
                     Align(
                         alignment: Alignment.centerLeft,
                         child: TextButton.icon(
