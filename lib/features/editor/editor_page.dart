@@ -130,12 +130,12 @@ class _EditorPageState extends State<EditorPage> {
           for (final item in placed)
             ProjectComponent(
               id: item.id,
-              name: placed[i].part.name,
-              family: placed[i].part.family,
-              symbol: placed[i].part.symbol,
-              details: placed[i].part.details,
-              x: placed[i].position.dx,
-              y: placed[i].position.dy,
+              name: item.part.name,
+              family: item.part.family,
+              symbol: item.part.symbol,
+              details: item.part.details,
+              x: item.position.dx,
+              y: item.position.dy,
             ),
         ],
         connections: connections,
@@ -347,13 +347,13 @@ class _EditorPageState extends State<EditorPage> {
               ),
               child: const SizedBox.expand()),
         )),
-        const Padding(
-            padding: EdgeInsets.all(6),
+        Padding(
+            padding: const EdgeInsets.all(6),
             child: Text(
                 wiringMode
                     ? 'Mode câblage : touchez deux composants successivement pour créer une liaison.'
                     : 'Touchez un composant pour le sélectionner, ou une zone vide pour placer l’outil choisi.',
-                style: TextStyle(fontSize: 10))),
+                style: const TextStyle(fontSize: 10))),
       ]);
 
   Widget properties() {
