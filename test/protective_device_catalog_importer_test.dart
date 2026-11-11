@@ -50,6 +50,7 @@ void main() {
     );
     expect(entry, isNotNull);
     expect(entry!.breakingCapacityA, 10000);
+    expect(entry.breakingCapacityRatingType, 'ICN');
     expect(entry.breakingCapacityVoltageV, 400);
     expect(entry.hasBreakingCapacityData, isTrue);
   });
@@ -75,6 +76,7 @@ void main() {
       breakingVoltageV: 230,
     );
     expect(icu!.breakingCapacityA, 10000);
+    expect(icu.breakingCapacityRatingType, 'ICU');
     expect(icn!.breakingCapacityA, 6000);
     expect(icu.ratedOperationalVoltageV, 400);
     expect(icu.breakingCapacityVoltageV, 400);
