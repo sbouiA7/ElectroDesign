@@ -66,9 +66,13 @@ class _EditorPageState extends State<EditorPage> {
       }
       final fromId = _componentId(wireStart!);
       final toId = _componentId(hit);
-      final exists = connections.any((connection) =>
-          (connection.fromComponentId == fromId && connection.toComponentId == toId) ||
-          (connection.fromComponentId == toId && connection.toComponentId == fromId));
+      final exists = connections.any(
+        (connection) =>
+            (connection.fromComponentId == fromId &&
+                connection.toComponentId == toId) ||
+            (connection.fromComponentId == toId &&
+                connection.toComponentId == fromId),
+      );
       if (exists) {
         setState(() => wireStart = null);
         _showMessage('Une liaison existe déjà entre ces composants.');
@@ -267,7 +271,10 @@ class _EditorPageState extends State<EditorPage> {
           child: Row(children: [
             const Icon(Icons.grid_4x4, size: 15),
             const SizedBox(width: 6),
-            Text(wiringMode ? 'Mode câblage actif' : 'Grille activée', style: const TextStyle(fontSize: 12)),
+            Text(
+              wiringMode ? 'Mode câblage actif' : 'Grille activée',
+              style: const TextStyle(fontSize: 12),
+            ),
             const Spacer(),
             Text('${placed.length} élément(s) • ${connections.length} liaison(s)',
                 style: const TextStyle(fontSize: 12)),
@@ -341,14 +348,6 @@ class _EditorPageState extends State<EditorPage> {
                     ? (wireStart == null ? 'Câblage : départ' : 'Câblage : arrivée')
                     : 'Outil : ${tool.name}',
                 style: const TextStyle(fontSize: 11),
-              ),
-              IconButton(
-                tooltip: 'Mode câblage',
-                onPressed: () => setState(() {
-                  wiringMode = !wiringMode;
-                  wireStart = null;
-                }),
-                icon: Icon(wiringMode ? Icons.close : Icons.cable),
               ),
             ])),
         Expanded(
