@@ -129,8 +129,8 @@ class _EditorPageState extends State<EditorPage> {
         title: Text('Choisir une borne — ${item.part.name}'),
         content: SizedBox(
           width: 320,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
+          height: 260,
+          child: ListView(
             children: item.part.terminals.map((terminal) => ListTile(
               leading: const Icon(Icons.electrical_services),
               title: Text(terminal.label),
@@ -204,6 +204,12 @@ class _EditorPageState extends State<EditorPage> {
     );
     labelController.dispose();
     if (!mounted || terminal == null) return;
+    if (item.part.terminals.any(
+      (existing) => existing.label.toLowerCase() == terminal.label.toLowerCase(),
+    )) {
+      _showMessage('Ce repère de borne existe déjà sur ce composant.');
+      return;
+    }
     final updatedPart = Part(
       item.part.name,
       item.part.family,
@@ -376,7 +382,7 @@ class _EditorPageState extends State<EditorPage> {
           return Column(children: [
             SizedBox(height: 185, child: palette()),
             Expanded(child: canvas()),
-            SizedBox(height: 105, child: properties())
+            SizedBox(height: 150, child: properties())
           ]);
         }),
         bottomNavigationBar: BottomAppBar(
@@ -480,7 +486,7 @@ class _EditorPageState extends State<EditorPage> {
             padding: const EdgeInsets.all(6),
             child: Text(
                 wiringMode
-                    ? 'Mode câblage : touchez deux composants successivement pour créer une liaison.'
+                    ? 'Mode câblage : choisissez une borne de départ puis une borne d’arrivée.'
                     : 'Touchez un composant pour le sélectionner, ou une zone vide pour placer l’outil choisi.',
                 style: const TextStyle(fontSize: 10))),
       ]);
