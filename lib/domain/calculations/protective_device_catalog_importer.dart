@@ -101,6 +101,7 @@ class ImportedProtectiveDeviceRecord {
       ratedOperationalVoltageV: operationalVoltageV,
       poleCount: poleCount,
       breakingCapacityA: rating.currentA,
+      breakingCapacityRatingType: rating.rating.trim().toUpperCase(),
       breakingCapacityStandard: rating.standard,
       breakingCapacityVoltageV: rating.voltageV,
       catalogueRevision: document.documentRevision,
