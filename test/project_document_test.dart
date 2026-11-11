@@ -56,6 +56,63 @@ void main() {
     expect(restored.connections.single.conductor, 'phase');
   });
 
+  test('schema version 1 projects migrate with no invented terminals', () {
+    final json = sampleProject().toJson()
+      ..['schemaVersion'] = 1;
+    for (final component in json['components'] as List) {
+      (component as Map<String, Object?>).remove('terminals');
+    }
+
+    final restored = ProjectDocument.fromJson(json);
+    expect(restored.schemaVersion, ProjectDocument.currentSchemaVersion);
+    expect(restored.components.every((component) => component.terminals.isEmpty), isTrue);
+  });
+
+  test('verified terminal metadata survives JSON round trip', () {
+    final json = sampleProject().toJson();
+    final components = json['components'] as List;
+    components[0] = {
+      ...components[0] as Map<String, Object?>,
+      'terminals': [
+        {'id': '1', 'label': 'Entrée phase', 'x': 0.0, 'y': 0.5},
+        {'id': '2', 'label': 'Sortie phase', 'x': 1.0, 'y': 0.5},
+      ],
+    };
+    final restored = ProjectDocument.fromJson(json);
+    expect(restored.components.first.terminals, hasLength(2));
+    expect(restored.components.first.terminals.last.id, '2');
+  });
+
+  test('terminal coordinates outside component bounds are rejected', () {
+    final json = sampleProject().toJson();
+    final components = json['components'] as List;
+    components[0] = {
+      ...components[0] as Map<String, Object?>,
+      'terminals': [
+        {'id': 'L', 'label': 'Phase', 'x': 1.2, 'y': 0.5},
+      ],
+    };
+    expect(
+      () => ProjectDocument.fromJson(json),
+      throwsA(isA<FormatException>()),
+    );
+  });
+
+  test('connections cannot reference unknown configured terminals', () {
+    final json = sampleProject().toJson();
+    final components = json['components'] as List;
+    components[0] = {
+      ...components[0] as Map<String, Object?>,
+      'terminals': [
+        {'id': '1', 'label': 'Entrée', 'x': 0.0, 'y': 0.5},
+      ],
+    };
+    expect(
+      () => ProjectDocument.fromJson(json),
+      throwsA(isA<FormatException>()),
+    );
+  });
+
   test('unknown schema versions are rejected', () {
     final json = sampleProject().toJson()..['schemaVersion'] = 99;
 
