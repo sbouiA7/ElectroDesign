@@ -10,8 +10,13 @@ class Part {
 }
 
 class PlacedPart {
-  PlacedPart(this.part, this.position);
+  PlacedPart(this.part, this.position, {String? id})
+      : id = id ?? 'placed-${DateTime.now().microsecondsSinceEpoch}-${_nextId++}';
 
+  static int _nextId = 0;
+
+  /// Stable identity retained when the project is saved and reopened.
+  final String id;
   final Part part;
   final Offset position;
 }
