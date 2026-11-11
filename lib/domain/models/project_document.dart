@@ -1,3 +1,5 @@
+import 'electrical_terminal.dart';
+
 /// Versioned, platform-independent project document for ElectroDesign.
 class ProjectComponent {
   const ProjectComponent({
@@ -8,6 +10,7 @@ class ProjectComponent {
     required this.details,
     required this.x,
     required this.y,
+    this.terminals = const [],
   });
 
   final String id;
@@ -18,6 +21,9 @@ class ProjectComponent {
   final double x;
   final double y;
 
+  /// Empty means that no verified or user-configured terminal layout is known.
+  final List<ElectricalTerminal> terminals;
+
   Map<String, Object?> toJson() => {
         'id': id,
         'name': name,
@@ -26,9 +32,14 @@ class ProjectComponent {
         'details': details,
         'x': x,
         'y': y,
+        'terminals': terminals.map((item) => item.toJson()).toList(),
       };
 
   factory ProjectComponent.fromJson(Map<String, dynamic> json) {
+    final rawTerminals = json['terminals'] ?? const [];
+    if (rawTerminals is! List) {
+      throw const FormatException('Component terminals must be a list');
+    }
     return ProjectComponent(
       id: _requiredString(json, 'id'),
       name: _requiredString(json, 'name'),
@@ -37,6 +48,11 @@ class ProjectComponent {
       details: _requiredString(json, 'details'),
       x: _requiredNumber(json, 'x'),
       y: _requiredNumber(json, 'y'),
+      terminals: rawTerminals
+          .map((item) => ElectricalTerminal.fromJson(
+                Map<String, dynamic>.from(item as Map),
+              ))
+          .toList(),
     );
   }
 }
@@ -80,8 +96,7 @@ class ProjectConnection {
   }
 }
 
-/// Portable project data. This model deliberately has no Flutter or platform
-/// dependencies so the same document can be read on mobile, desktop and Web.
+/// Portable project data with backwards-compatible schema migration.
 class ProjectDocument {
   ProjectDocument({
     required this.id,
@@ -96,7 +111,7 @@ class ProjectDocument {
     validate();
   }
 
-  static const currentSchemaVersion = 1;
+  static const currentSchemaVersion = 2;
 
   final int schemaVersion;
   final String id;
@@ -107,7 +122,7 @@ class ProjectDocument {
   final List<ProjectConnection> connections;
 
   Map<String, Object?> toJson() => {
-        'schemaVersion': schemaVersion,
+        'schemaVersion': currentSchemaVersion,
         'id': id,
         'name': name,
         'createdAt': createdAt.toUtc().toIso8601String(),
@@ -118,7 +133,7 @@ class ProjectDocument {
 
   factory ProjectDocument.fromJson(Map<String, dynamic> json) {
     final version = json['schemaVersion'];
-    if (version != currentSchemaVersion) {
+    if (version != 1 && version != currentSchemaVersion) {
       throw FormatException('Unsupported project schema version: $version');
     }
 
@@ -129,7 +144,7 @@ class ProjectDocument {
     }
 
     return ProjectDocument(
-      schemaVersion: version as int,
+      schemaVersion: currentSchemaVersion,
       id: _requiredString(json, 'id'),
       name: _requiredString(json, 'name'),
       createdAt: DateTime.parse(_requiredString(json, 'createdAt')),
@@ -161,20 +176,52 @@ class ProjectDocument {
       throw const FormatException('Component ids must be unique and non-empty');
     }
 
+    for (final component in components) {
+      final terminalIds = component.terminals.map((terminal) => terminal.id).toSet();
+      if (terminalIds.length != component.terminals.length ||
+          terminalIds.any((id) => id.trim().isEmpty)) {
+        throw const FormatException('Terminal ids must be unique and non-empty per component');
+      }
+      final labels = component.terminals.map((terminal) => terminal.label).toSet();
+      if (labels.length != component.terminals.length ||
+          labels.any((label) => label.trim().isEmpty)) {
+        throw const FormatException('Terminal labels must be unique and non-empty per component');
+      }
+      for (final terminal in component.terminals) {
+        if (!terminal.x.isFinite || !terminal.y.isFinite ||
+            terminal.x < 0 || terminal.x > 1 ||
+            terminal.y < 0 || terminal.y > 1) {
+          throw const FormatException('Terminal coordinates must be normalized between 0 and 1');
+        }
+      }
+    }
+
     final connectionIds = connections.map((item) => item.id).toSet();
     if (connectionIds.length != connections.length ||
         connectionIds.any((value) => value.trim().isEmpty)) {
       throw const FormatException('Connection ids must be unique and non-empty');
     }
 
+    final componentsById = {for (final item in components) item.id: item};
     for (final connection in connections) {
-      if (!componentIds.contains(connection.fromComponentId) ||
-          !componentIds.contains(connection.toComponentId)) {
+      final from = componentsById[connection.fromComponentId];
+      final to = componentsById[connection.toComponentId];
+      if (from == null || to == null) {
         throw const FormatException('Connection references an unknown component');
       }
       if (connection.fromTerminal.trim().isEmpty ||
           connection.toTerminal.trim().isEmpty) {
         throw const FormatException('Connection terminals are required');
+      }
+      // If terminal metadata is present, references must match it. Empty
+      // metadata remains valid for legacy projects and unconfigured parts.
+      if (from.terminals.isNotEmpty &&
+          !from.terminals.any((terminal) => terminal.id == connection.fromTerminal)) {
+        throw const FormatException('Connection references an unknown source terminal');
+      }
+      if (to.terminals.isNotEmpty &&
+          !to.terminals.any((terminal) => terminal.id == connection.toTerminal)) {
+        throw const FormatException('Connection references an unknown destination terminal');
       }
     }
   }
