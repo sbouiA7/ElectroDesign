@@ -34,9 +34,9 @@ class GridPainter extends CustomPainter {
       ..strokeWidth = 2.2
       ..strokeCap = StrokeCap.round;
     for (final connection in connections) {
-      final from = _indexOf(connection.fromComponentId);
-      final to = _indexOf(connection.toComponentId);
-      if (from == null || to == null) continue;
+      final from = items.indexWhere((item) => item.id == connection.fromComponentId);
+      final to = items.indexWhere((item) => item.id == connection.toComponentId);
+      if (from < 0 || to < 0) continue;
       canvas.drawLine(items[from].position, items[to].position, wirePaint);
       canvas.drawCircle(items[from].position, 3, Paint()..color = wirePaint.color);
       canvas.drawCircle(items[to].position, 3, Paint()..color = wirePaint.color);
@@ -92,14 +92,6 @@ class GridPainter extends CustomPainter {
     }
   }
 
-  int? _indexOf(String componentId) {
-    if (!componentId.startsWith('component-')) return null;
-    final index = int.tryParse(
-      componentId.substring('component-'.length),
-    );
-    if (index == null || index < 1 || index > items.length) return null;
-    return index - 1;
-  }
 
   @override
   bool shouldRepaint(covariant GridPainter old) =>
