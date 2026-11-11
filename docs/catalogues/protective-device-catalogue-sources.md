@@ -45,6 +45,56 @@ The machine-readable transcription is stored in
 `docs/catalogues/data/abb-s202muc-c2.json`. It is a reviewed documentation
 record, not yet wired into the Flutter application's runtime catalogue.
 
+
+## Product data transcribed
+
+### Legrand — BTDIN 60 FN881C16
+
+- Product reference: `FN881C16`
+- Configuration: 2 poles, one protected phase pole plus neutral
+- Rated current: 16 A; curve C; 230 V AC, 50 Hz
+- Breaking ratings stated in the document: Icn 6 kA under EN/IEC 60898-1;
+  Icu 10 kA under EN/IEC 60947-2 (230 V AC context).
+- Uimp: 4 kV; Ui: 250 V.
+- Official technical sheet: [IDP000402EN_02](https://assets.legrand.com/pim/NP-FT-GT/IDP000402EN-02.pdf)
+- Evidence: page 1 identifies the exact catalogue reference within the C-curve
+  16 A range and gives headline ratings; page 3 gives Ui/Uimp and derating;
+  pages 6–8 contain family curves, not yet numerically digitized.
+- Document updated: 2021-02-18; retrieved: 2026-11-11.
+- Status: identity and headline ratings transcribed; no numeric curve/I²t data
+  or pairwise selectivity values imported.
+
+Machine-readable record: `docs/catalogues/data/legrand-btdin60-fn881c16.json`.
+
+### Hager — MBN350A
+
+- Product reference: `MBN350A`; 3P; 50 A; B curve.
+- Ue: 400 V AC; Ui: 500 V; Uimp: 4 kV; 50/60 Hz.
+- Icn: 6 kA at 230 V AC under IEC 60898-1.
+- Ics: 6 kA at 230 V AC under IEC 60947-2.
+- Icu: 10 kA at 400 V AC under IEC 60947-2.
+- I²t energy-limitation class: 3; IP20.
+- Official product datasheet: [PDS_463606450000EN](https://assets.hager.com/step-content/P/PDS_463606450000EN/Document/std.lang.all/PDS_MBN350A_0000_en-GB.pdf)
+- Evidence: pages 1–2, exact model and technical table.
+- Datasheet date: 2026-01-16; retrieved: 2026-11-11.
+- Status: ratings transcribed with their standard and voltage qualifiers;
+  no numeric trip/let-through curve or pairwise selectivity data imported.
+
+Machine-readable record: `docs/catalogues/data/hager-mbn350a.json`.
+
+### SOMEF — modular breaker 801106CX20
+
+- Product reference: `801106CX20`; 1P; 20 A; curve C.
+- Official product page states Icn = 6 kA and lists available 2P, 3P, 4P
+  and 1P+N variants, plus 10–63 A ratings.
+- Official source: [SOMEF product page](https://www.somef.tn/fr/systemes-modulaires-sur-rail-din/1552-disjoncteur-modulaire-1-pole.html)
+- Evidence: product page, retrieved 2026-11-11.
+- Important limitation: the page does not identify the standard or voltage
+  associated with its Icn claim and supplies no detailed datasheet. The 6 kA
+  claim is recorded verbatim but is not an approved calculation input.
+
+Machine-readable record: `docs/catalogues/data/somef-801106cx20.json`.
+
 ## Sources located; product data pending
 
 | Manufacturer | Product / document | Official source | What the source supports | Status |
