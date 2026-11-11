@@ -4,6 +4,9 @@ void main() {
   testWidgets('ElectroDesign opens editor', (tester) async {
     await tester.pumpWidget(const ElectroDesignApp());
     expect(find.text('ElectroDesign'), findsOneWidget);
-    expect(find.text('Éditeur de schéma'), findsOneWidget);
+    expect(find.text('Mon schéma'), findsOneWidget);
+    expect(find.byTooltip('Ouvrir un projet'), findsOneWidget);
+    expect(find.byTooltip('Enregistrer le projet'), findsOneWidget);
+    expect(find.byTooltip('Tracer une liaison'), findsOneWidget);
   });
 }
