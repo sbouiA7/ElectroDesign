@@ -14,6 +14,9 @@ class EditorPage extends StatefulWidget {
 
 class _EditorPageState extends State<EditorPage> {
   final placed = <PlacedPart>[];
+  final connections = <ProjectConnection>[];
+  bool wiringMode = false;
+  int? wireStart;
   Part tool = library.first;
   int? selected;
   String family = 'Toutes';
@@ -32,13 +35,80 @@ class _EditorPageState extends State<EditorPage> {
         selected = placed.length - 1;
       });
 
-  void remove() {
-    if (selected != null) {
-      setState(() {
-        placed.removeAt(selected!);
-        selected = null;
-      });
+  void _handleCanvasTap(Offset point) {
+    var hit = -1;
+    for (var i = placed.length - 1; i >= 0; i--) {
+      if ((placed[i].position - point).distance <= 34) {
+        hit = i;
+        break;
+      }
     }
+
+    if (wiringMode) {
+      if (hit < 0) {
+        setState(() => wireStart = null);
+        _showMessage('Choisissez un composant pour commencer le câble.');
+        return;
+      }
+      if (wireStart == null) {
+        setState(() {
+          wireStart = hit;
+          selected = hit;
+        });
+        _showMessage('Point de départ choisi. Touchez le composant d’arrivée.');
+        return;
+      }
+      if (wireStart == hit) {
+        setState(() => wireStart = null);
+        return;
+      }
+      final fromId = placed[wireStart!].id;
+      final toId = placed[hit].id;
+      final exists = connections.any(
+        (connection) =>
+            (connection.fromComponentId == fromId &&
+                connection.toComponentId == toId) ||
+            (connection.fromComponentId == toId &&
+                connection.toComponentId == fromId),
+      );
+      if (exists) {
+        setState(() => wireStart = null);
+        _showMessage('Une liaison existe déjà entre ces composants.');
+        return;
+      }
+      setState(() {
+        connections.add(ProjectConnection(
+          id: 'connection-${DateTime.now().microsecondsSinceEpoch}',
+          fromComponentId: fromId,
+          fromTerminal: 'A',
+          toComponentId: toId,
+          toTerminal: 'B',
+        ));
+        selected = hit;
+        wireStart = null;
+      });
+      _showMessage('Liaison ajoutée.');
+      return;
+    }
+
+    if (hit >= 0) {
+      setState(() => selected = hit);
+    } else {
+      add(point);
+    }
+  }
+
+  void remove() {
+    if (selected == null) return;
+    final removedId = placed[selected!].id;
+    setState(() {
+      connections.removeWhere((connection) =>
+          connection.fromComponentId == removedId ||
+          connection.toComponentId == removedId);
+      placed.removeAt(selected!);
+      selected = null;
+      wireStart = null;
+    });
   }
 
   void _showMessage(String message) {
@@ -57,9 +127,9 @@ class _EditorPageState extends State<EditorPage> {
         createdAt: projectCreatedAt,
         updatedAt: now.isBefore(projectCreatedAt) ? projectCreatedAt : now,
         components: [
-          for (var i = 0; i < placed.length; i++)
+          for (final item in placed)
             ProjectComponent(
-              id: 'component-${i + 1}',
+              id: item.id,
               name: placed[i].part.name,
               family: placed[i].part.family,
               symbol: placed[i].part.symbol,
@@ -68,6 +138,7 @@ class _EditorPageState extends State<EditorPage> {
               y: placed[i].position.dy,
             ),
         ],
+        connections: connections,
       );
       final saved = await ProjectFileService.saveProject(document);
       if (saved) _showMessage('Projet enregistré.');
@@ -89,13 +160,19 @@ class _EditorPageState extends State<EditorPage> {
             ? matching.first
             : Part(component.name, component.family, component.symbol,
                 component.details);
-        return PlacedPart(part, Offset(component.x, component.y));
+        return PlacedPart(part, Offset(component.x, component.y), id: component.id);
       }).toList();
+      final restoredConnections = document.connections;
 
       setState(() {
         placed
           ..clear()
           ..addAll(restored);
+        connections
+          ..clear()
+          ..addAll(restoredConnections);
+        wiringMode = false;
+        wireStart = null;
         selected = null;
         projectId = document.id;
         projectName = document.name;
@@ -109,6 +186,9 @@ class _EditorPageState extends State<EditorPage> {
 
   void _newProject() => setState(() {
         placed.clear();
+        connections.clear();
+        wiringMode = false;
+        wireStart = null;
         selected = null;
         projectId = 'project-${DateTime.now().microsecondsSinceEpoch}';
         projectName = 'Mon schéma';
@@ -140,6 +220,14 @@ class _EditorPageState extends State<EditorPage> {
               icon: const Icon(Icons.save_outlined),
             ),
             IconButton(
+              tooltip: wiringMode ? 'Quitter le câblage' : 'Tracer une liaison',
+              onPressed: () => setState(() {
+                wiringMode = !wiringMode;
+                wireStart = null;
+              }),
+              icon: Icon(wiringMode ? Icons.close : Icons.cable),
+            ),
+            IconButton(
               tooltip: 'Supprimer',
               onPressed: remove,
               icon: const Icon(Icons.delete_outline),
@@ -167,9 +255,12 @@ class _EditorPageState extends State<EditorPage> {
           child: Row(children: [
             const Icon(Icons.grid_4x4, size: 15),
             const SizedBox(width: 6),
-            const Text('Grille activée', style: TextStyle(fontSize: 12)),
+            Text(
+              wiringMode ? 'Mode câblage actif' : 'Grille activée',
+              style: const TextStyle(fontSize: 12),
+            ),
             const Spacer(),
-            Text('${placed.length} élément(s)',
+            Text('${placed.length} élément(s) • ${connections.length} liaison(s)',
                 style: const TextStyle(fontSize: 12)),
           ]),
         ),
@@ -236,35 +327,32 @@ class _EditorPageState extends State<EditorPage> {
               Text(projectName,
                   style: const TextStyle(fontWeight: FontWeight.w600)),
               const Spacer(),
-              Text('Outil : ${tool.name}',
-                  style: const TextStyle(fontSize: 11)),
+              Text(
+                wiringMode
+                    ? (wireStart == null ? 'Câblage : départ' : 'Câblage : arrivée')
+                    : 'Outil : ${tool.name}',
+                style: const TextStyle(fontSize: 11),
+              ),
             ])),
         Expanded(
             child: GestureDetector(
           behavior: HitTestBehavior.opaque,
-          onTapDown: (d) {
-            final point = d.localPosition;
-            var hit = -1;
-            for (var i = placed.length - 1; i >= 0; i--) {
-              if ((placed[i].position - point).distance <= 34) {
-                hit = i;
-                break;
-              }
-            }
-            if (hit >= 0) {
-              setState(() => selected = hit);
-            } else {
-              add(point);
-            }
-          },
+          onTapDown: (d) => _handleCanvasTap(d.localPosition),
           child: CustomPaint(
-              painter: GridPainter(placed, selected),
+              painter: GridPainter(
+                placed,
+                selected,
+                connections: connections,
+                pendingWireStart: wireStart,
+              ),
               child: const SizedBox.expand()),
         )),
         const Padding(
             padding: EdgeInsets.all(6),
             child: Text(
-                'Touchez un composant de la grille pour le sélectionner, ou une zone vide pour placer l’outil choisi.',
+                wiringMode
+                    ? 'Mode câblage : touchez deux composants successivement pour créer une liaison.'
+                    : 'Touchez un composant pour le sélectionner, ou une zone vide pour placer l’outil choisi.',
                 style: TextStyle(fontSize: 10))),
       ]);
 
