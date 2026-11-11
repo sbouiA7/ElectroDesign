@@ -132,7 +132,7 @@ class ProtectiveDeviceCatalogEntry {
       breakingCapacityA != null &&
       breakingCapacityStandard != null &&
       breakingCapacityStandard!.trim().isNotEmpty &&
-      (breakingCapacityVoltageV ?? ratedOperationalVoltageV) != null;
+      breakingCapacityVoltageV != null;
 
   bool get hasResidualCurrentData =>
       hasValidIdentityAndSource &&
