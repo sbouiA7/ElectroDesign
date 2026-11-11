@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../domain/models/electrical_part.dart';
+import '../../../domain/models/electrical_terminal.dart';
 import '../../../domain/models/project_document.dart';
 
 class GridPainter extends CustomPainter {
@@ -32,14 +33,29 @@ class GridPainter extends CustomPainter {
     final wirePaint = Paint()
       ..color = const Color(0xFF087E8B)
       ..strokeWidth = 2.2
-      ..strokeCap = StrokeCap.round;
+      ..strokeCap = StrokeCap.round
+      ..style = PaintingStyle.stroke;
     for (final connection in connections) {
-      final from = items.indexWhere((item) => item.id == connection.fromComponentId);
-      final to = items.indexWhere((item) => item.id == connection.toComponentId);
-      if (from < 0 || to < 0) continue;
-      canvas.drawLine(items[from].position, items[to].position, wirePaint);
-      canvas.drawCircle(items[from].position, 3, Paint()..color = wirePaint.color);
-      canvas.drawCircle(items[to].position, 3, Paint()..color = wirePaint.color);
+      final fromIndex = items.indexWhere((item) => item.id == connection.fromComponentId);
+      final toIndex = items.indexWhere((item) => item.id == connection.toComponentId);
+      if (fromIndex < 0 || toIndex < 0) continue;
+      final fromPart = items[fromIndex];
+      final toPart = items[toIndex];
+      final fromTerminal = _terminalById(fromPart, connection.fromTerminal);
+      final toTerminal = _terminalById(toPart, connection.toTerminal);
+      // Never draw a wire from component centers or guessed terminals.
+      if (fromTerminal == null || toTerminal == null) continue;
+      final start = _terminalPosition(fromPart, fromTerminal);
+      final end = _terminalPosition(toPart, toTerminal);
+      final middleX = (start.dx + end.dx) / 2;
+      final route = Path()
+        ..moveTo(start.dx, start.dy)
+        ..lineTo(middleX, start.dy)
+        ..lineTo(middleX, end.dy)
+        ..lineTo(end.dx, end.dy);
+      canvas.drawPath(route, wirePaint);
+      canvas.drawCircle(start, 3.5, Paint()..color = wirePaint.color);
+      canvas.drawCircle(end, 3.5, Paint()..color = wirePaint.color);
     }
 
     if (pendingWireStart != null && pendingWireStart! < items.length) {
@@ -63,6 +79,35 @@ class GridPainter extends CustomPainter {
         Rect.fromCenter(center: center, width: 54, height: 40),
         paint,
       );
+      final bounds = Rect.fromCenter(center: center, width: 54, height: 40);
+      for (final terminal in item.part.terminals) {
+        final terminalPoint = Offset(
+          bounds.left + terminal.x * bounds.width,
+          bounds.top + terminal.y * bounds.height,
+        );
+        canvas.drawCircle(
+          terminalPoint,
+          3.5,
+          Paint()..color = const Color(0xFF087E8B),
+        );
+        final terminalLabel = TextPainter(
+          text: TextSpan(
+            text: terminal.label,
+            style: const TextStyle(
+              color: Color(0xFF087E8B),
+              fontSize: 8,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          textDirection: TextDirection.ltr,
+        )..layout(maxWidth: 42);
+        final labelOffset = Offset(
+          terminalPoint.dx - terminalLabel.width / 2,
+          terminalPoint.dy - 13,
+        );
+        terminalLabel.paint(canvas, labelOffset);
+      }
+
       final symbol = TextPainter(
         text: TextSpan(
           text: item.part.symbol,
@@ -92,6 +137,22 @@ class GridPainter extends CustomPainter {
     }
   }
 
+
+
+  ElectricalTerminal? _terminalById(PlacedPart part, String id) {
+    for (final terminal in part.part.terminals) {
+      if (terminal.id == id) return terminal;
+    }
+    return null;
+  }
+
+  Offset _terminalPosition(PlacedPart part, ElectricalTerminal terminal) {
+    const width = 54.0;
+    const height = 40.0;
+    final left = part.position.dx - width / 2;
+    final top = part.position.dy - height / 2;
+    return Offset(left + terminal.x * width, top + terminal.y * height);
+  }
 
   @override
   bool shouldRepaint(covariant GridPainter old) =>
