@@ -43,6 +43,7 @@ void main() {
       ratedOperationalVoltageV: ratedVoltageV,
       poleCount: 2,
       breakingCapacityA: breakingCapacityA,
+      breakingCapacityRatingType: 'Icn',
       breakingCapacityStandard: breakingCapacityStandard,
       breakingCapacityVoltageV: breakingVoltageV,
       residualCurrentType: rcdType,
