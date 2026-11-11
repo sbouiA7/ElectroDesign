@@ -37,6 +37,17 @@ La stratégie détaillée, les éditions Free/Pro/Expert/Équipe, la conception 
 - Les catalogues non vérifiés doivent être explicitement signalés ; ne jamais inventer des prix locaux.
 - Les prix personnels de l'utilisateur sont prioritaires et ne sont jamais remplacés silencieusement.
 
+## Rubrique « Outils et appareils de mesure »
+Une rubrique dédiée rassemble les outils de travail de l'électricien, avec fiches pédagogiques, usages, précautions, exemples et compatibilités selon les tâches. Elle doit être accessible depuis l'accueil et reliée aux modules de formation et de sécurité.
+
+Familles à couvrir progressivement :
+- **Mesure électrique** : multimètre numérique, pince ampèremétrique, VAT (vérificateur d'absence de tension), testeur de continuité, contrôleur d'isolement (mégohmmètre), telluromètre (résistance de terre), contrôleur d'ordre des phases et détecteur de câbles.
+- **Outillage manuel** : pinces universelles, coupantes et à dénuder, pinces à sertir, tournevis isolés, clés, coupe-câbles, couteaux et outils de tirage de conducteurs.
+- **Outillage de pose** : perceuse/visseuse, perforateur, outils de fixation, aiguilles tire-fils et accessoires de repérage.
+- **Protection et sécurité** : gants et équipements adaptés, lunettes, tapis isolant, balisage et consignation ; rappeler que les EPI et procédures dépendent du travail et du risque.
+
+Chaque fiche précisera la fonction, les situations d'utilisation, les limites, les contrôles avant usage et les précautions. Les caractéristiques (catégorie CAT, tension, courant, plage de mesure, précision, normes et état de vérification) seront affichées uniquement lorsqu'elles sont connues pour le modèle concerné : aucune valeur technique ne sera inventée. Les guides devront rappeler les procédures de mise hors tension, de vérification d'absence de tension et le recours à une personne qualifiée ; l'application ne remplace ni un appareil adapté ni les règles de sécurité du chantier.
+
 ## Sécurité et normes
 - Référentiels configurables selon le pays et leur édition applicable (par exemple IEC 60364, IEC 61439, IEC 60947, IEC 60898, IEC 61008/61009, ainsi que les règles nationales applicables).
 - Contrôles à développer : surcharge, court-circuit et pouvoir de coupure, sections et chute de tension, protection différentielle, terre, sélectivité, coordination, échauffement, indice IP/IK et parafoudre.
