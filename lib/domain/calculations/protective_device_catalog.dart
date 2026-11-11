@@ -75,6 +75,7 @@ class ProtectiveDeviceCatalogEntry {
     this.ratedImpulseWithstandVoltageKv,
     this.poleCount,
     this.breakingCapacityA,
+    this.breakingCapacityRatingType,
     this.breakingCapacityStandard,
     this.breakingCapacityVoltageV,
     this.residualCurrentType,
@@ -96,6 +97,9 @@ class ProtectiveDeviceCatalogEntry {
   final double? ratedImpulseWithstandVoltageKv;
   final int? poleCount;
   final double? breakingCapacityA;
+
+  /// Manufacturer's exact declared rating kind: Icn, Ics or Icu.
+  final String? breakingCapacityRatingType;
   final String? breakingCapacityStandard;
 
   /// Voltage condition belonging to Icn/Icu/Ics; distinct from device Ue.
@@ -130,6 +134,9 @@ class ProtectiveDeviceCatalogEntry {
   bool get hasBreakingCapacityData =>
       hasValidIdentityAndSource &&
       breakingCapacityA != null &&
+      const {'icn', 'ics', 'icu'}.contains(
+        breakingCapacityRatingType?.trim().toLowerCase(),
+      ) &&
       breakingCapacityStandard != null &&
       breakingCapacityStandard!.trim().isNotEmpty &&
       breakingCapacityVoltageV != null;
