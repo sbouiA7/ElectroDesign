@@ -231,6 +231,7 @@ class _EditorPageState extends State<EditorPage> {
 
   Future<void> _assignProtectiveDevice() async {
     if (selected == null || selected! >= placed.length) return;
+    final targetComponentId = placed[selected!].id;
     final importer = const ProtectiveDeviceCatalogImporter();
     try {
       final records = await importer.loadBundledRecords();
@@ -287,9 +288,11 @@ class _EditorPageState extends State<EditorPage> {
         ),
       );
       if (!mounted || rating == null) return;
-      final item = placed[selected!];
+      final targetIndex = placed.indexWhere((item) => item.id == targetComponentId);
+      if (targetIndex < 0) return;
+      final item = placed[targetIndex];
       setState(() {
-        placed[selected!] = item.copyWith(
+        placed[targetIndex] = item.copyWith(
           protectiveDeviceManufacturer: chosen.manufacturer,
           protectiveDeviceReference: chosen.productReference,
           protectiveDeviceRatingType: rating.rating.trim().toUpperCase(),
