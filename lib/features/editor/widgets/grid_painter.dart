@@ -6,12 +6,15 @@ import '../../../domain/models/project_document.dart';
 
 class GridPainter extends CustomPainter {
   GridPainter(
-    this.items,
+    List<PlacedPart> items,
     this.selected, {
-    this.connections = const [],
+    List<ProjectConnection> connections = const [],
     this.pendingWireStart,
-  });
+  })  : items = List<PlacedPart>.unmodifiable(items),
+        connections = List<ProjectConnection>.unmodifiable(connections);
 
+  // Keep immutable snapshots: the editor mutates its working lists in place,
+  // and the previous painter must retain the old values for repaint checks.
   final List<PlacedPart> items;
   final int? selected;
   final List<ProjectConnection> connections;
