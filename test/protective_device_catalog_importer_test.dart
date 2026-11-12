@@ -31,6 +31,7 @@ Map<String, dynamic> source({
 };
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
   test('imports a single qualified ABB-like rating', () {
     final record = importer.parse(jsonEncode(source(
       manufacturer: 'ABB',
@@ -115,4 +116,88 @@ void main() {
     bad['category'] = 'unknownCategory';
     expect(() => importer.parse(jsonEncode(bad)), throwsFormatException);
   });
+
+  test('loads the four bundled manufacturer records', () async {
+    final records = await importer.loadBundledRecords();
+
+    expect(records, hasLength(4));
+    expect(
+      records.map((record) => record.manufacturer).toSet(),
+      containsAll({'ABB', 'Legrand', 'Hager', 'SOMEF'}),
+    );
+  });
+
+  test('bundled ABB rating retains its standard and voltage qualifiers',
+      () async {
+    final records = await importer.loadBundledRecords();
+    final abb = records.singleWhere((record) => record.manufacturer == 'ABB');
+
+    final entry = abb.toCatalogEntry(
+      breakingStandard: 'IEC/EN 60898-2',
+      breakingVoltageV: 400,
+    );
+
+    expect(entry, isNotNull);
+    expect(entry!.breakingCapacityA, 10000);
+    expect(entry.breakingCapacityRatingType, 'ICN');
+    expect(entry.breakingCapacityStandard, 'IEC/EN 60898-2');
+    expect(entry.breakingCapacityVoltageV, 400);
+    expect(entry.hasBreakingCapacityData, isTrue);
+  });
+
+  test('bundled Legrand Icn and Icu remain separate ratings', () async {
+    final records = await importer.loadBundledRecords();
+    final legrand =
+        records.singleWhere((record) => record.manufacturer == 'Legrand');
+
+    final icn = legrand.toCatalogEntry(
+      breakingStandard: 'EN/IEC 60898-1',
+      breakingVoltageV: 230,
+    );
+    final icu = legrand.toCatalogEntry(
+      breakingStandard: 'EN/IEC 60947-2',
+      breakingVoltageV: 230,
+    );
+
+    expect(icn?.breakingCapacityA, 6000);
+    expect(icn?.breakingCapacityRatingType, 'ICN');
+    expect(icu?.breakingCapacityA, 10000);
+    expect(icu?.breakingCapacityRatingType, 'ICU');
+  });
+
+  test('bundled Hager rating requires the exact voltage condition', () async {
+    final records = await importer.loadBundledRecords();
+    final hager =
+        records.singleWhere((record) => record.manufacturer == 'Hager');
+
+    final icu = hager.toCatalogEntry(
+      breakingStandard: 'IEC 60947-2',
+      breakingVoltageV: 400,
+    );
+    final wrongVoltage = hager.toCatalogEntry(
+      breakingStandard: 'IEC 60947-2',
+      breakingVoltageV: 230,
+    );
+
+    expect(icu?.breakingCapacityA, 10000);
+    expect(icu?.breakingCapacityRatingType, 'ICU');
+    expect(wrongVoltage, isNull);
+  });
+
+  test('SOMEF unqualified claim and missing revision stay non-calculation data',
+      () async {
+    final records = await importer.loadBundledRecords();
+    final somef =
+        records.singleWhere((record) => record.manufacturer == 'SOMEF');
+
+    expect(somef.breakingRatings, hasLength(1));
+    expect(somef.breakingRatings.single.isQualified, isFalse);
+    expect(somef.document.documentRevision, isEmpty);
+    expect(somef.hasValidIdentity, isFalse);
+    expect(somef.toCatalogEntry(
+      breakingStandard: 'IEC 60898-1',
+      breakingVoltageV: 230,
+    ), isNull);
+  });
+
 }
