@@ -127,6 +127,16 @@ void main() {
     );
   });
 
+  test('does not invent a document revision for SOMEF', () async {
+    final records = await importer.loadBundledRecords();
+    final somef =
+        records.singleWhere((record) => record.manufacturer == 'SOMEF');
+
+    expect(somef.document.documentRevision, isEmpty);
+    expect(somef.document.hasTraceableSource, isFalse);
+    expect(somef.hasValidIdentity, isFalse);
+  });
+
   test('bundled ABB rating retains its standard and voltage qualifiers',
       () async {
     final records = await importer.loadBundledRecords();
