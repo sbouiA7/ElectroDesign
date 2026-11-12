@@ -1,5 +1,7 @@
 import 'dart:math' as math;
 
+import 'electrical_load.dart';
+
 /// Conductor material used by the simplified voltage-drop estimator.
 enum ConductorMaterial {
   copper,
