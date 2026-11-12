@@ -1,3 +1,5 @@
+import 'protective_device_selectivity.dart';
+
 /// Structured, traceable catalogue record for a protective electrical device.
 ///
 /// This is a data model, not a source of default electrical ratings. Real
