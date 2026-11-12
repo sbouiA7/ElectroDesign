@@ -157,9 +157,11 @@ class ProtectiveDeviceCatalogImporter {
       throw const FormatException('Source evidence/pages are required.');
     }
     final sourceUrl = _string(source, 'source_url');
+    // Do not invent a document revision: an unspecified revision must remain
+    // unqualified and cannot be treated as traceable calculation evidence.
     final revision = (source['document_identifier'] ??
             source['document_revision'] ??
-            'Unspecified revision')
+            '')
         .toString();
     final document = ManufacturerDocumentReference(
       title: _string(source, 'title'),
