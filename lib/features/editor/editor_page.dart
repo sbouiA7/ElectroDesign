@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 import '../../data/catalog/component_library.dart';
 import '../catalog/protective_device_catalog_page.dart';
