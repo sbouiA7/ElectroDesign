@@ -78,7 +78,7 @@ class ProtectiveDeviceSelectivityCheck {
     _validateCurve(upstreamMinimumNonTrippingCurve, 'upstream');
 
     if (prospectiveFaultCurrentA > manufacturerSelectivityLimitA) {
-      return ProtectiveDeviceSelectivityResult(
+      return const ProtectiveDeviceSelectivityResult(
         status: SelectivityStatus.notSelectiveAtEvaluatedCurrent,
         downstreamMaximumClearingTimeS: null,
         upstreamMinimumNonTrippingTimeS: null,
