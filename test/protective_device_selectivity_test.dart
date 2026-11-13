@@ -11,7 +11,7 @@ void main() {
   }) {
     return ProtectiveDeviceCurve(
       deviceReference: reference,
-      points: [
+      points: const [
         ProtectiveCurvePoint(
           currentA: 100,
           minimumTimeS: minAt100,
