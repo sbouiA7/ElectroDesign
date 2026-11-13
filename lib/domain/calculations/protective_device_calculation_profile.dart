@@ -37,9 +37,7 @@ class ProtectiveDeviceCalculationProfile {
         (networkVoltageV - device.breakingCapacityVoltageV!).abs() > 0.01) {
       throw StateError(
         'La tension du réseau ne correspond pas à la tension déclarée '
-        'pour le pouvoir de coupure (' +
-            device.breakingCapacityVoltageV.toString() +
-            ' V).',
+        'pour le pouvoir de coupure (${device.breakingCapacityVoltageV} V).',
       );
     }
     if (device.ratedCurrentA == null ||
