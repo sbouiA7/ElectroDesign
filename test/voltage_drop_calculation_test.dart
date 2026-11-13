@@ -30,7 +30,7 @@ void main() {
         powerFactor: 0.8,
       );
 
-      expect(calculation.calculateDropV(), closeTo(1.906, 0.002));
+      expect(calculation.calculateDropV(), closeTo(1.9112, 0.001));
     });
 
     test('calculates DC voltage drop with round-trip length', () {
