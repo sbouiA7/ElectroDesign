@@ -102,7 +102,7 @@ void main() {
   });
 
   test('rejects unsorted curve points', () {
-    final invalid = ProtectiveDeviceCurve(
+    final invalid = const ProtectiveDeviceCurve(
       deviceReference: 'Invalid reference',
       points: [
         const ProtectiveCurvePoint(
