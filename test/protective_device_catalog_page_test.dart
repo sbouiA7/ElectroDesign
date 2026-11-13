@@ -23,13 +23,11 @@ void main() {
     await tester.pumpWidget(
       const MaterialApp(home: ProtectiveDeviceCatalogPage()),
     );
-    await tester.pump();
-    await tester.pump(const Duration(milliseconds: 300));
+    await tester.pumpAndSettle();
 
     expect(find.byType(TextField), findsOneWidget);
     await tester.enterText(find.byType(TextField), 'SOMEF');
-    await tester.pump();
-    await tester.pump(const Duration(milliseconds: 300));
+    await tester.pumpAndSettle();
 
     expect(find.text('1 fiche(s)'), findsOneWidget);
     expect(find.text('801106CX20'), findsOneWidget);
