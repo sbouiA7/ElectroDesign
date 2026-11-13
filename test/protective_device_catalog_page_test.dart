@@ -26,7 +26,7 @@ void main() {
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 300));
 
-    await tester.tap(find.text('SOMEF').first);
+    await tester.enterText(find.byType(TextField), 'SOMEF');
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 300));
 
