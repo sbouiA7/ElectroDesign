@@ -13,7 +13,7 @@ void main() {
         supplyType: SupplyType.singlePhaseAc,
         conductorMaterial: ConductorMaterial.copper,
         maximumDropPercent: 3,
-        candidates: const [
+        candidates: [
           CableAmpacityEntry(crossSectionMm2: 1.5, referenceAmpacityA: 20),
           CableAmpacityEntry(crossSectionMm2: 2.5, referenceAmpacityA: 25),
           CableAmpacityEntry(crossSectionMm2: 4, referenceAmpacityA: 32),
@@ -37,7 +37,7 @@ void main() {
         supplyType: SupplyType.singlePhaseAc,
         conductorMaterial: ConductorMaterial.copper,
         maximumDropPercent: 5,
-        candidates: const [
+        candidates: [
           CableAmpacityEntry(crossSectionMm2: 2.5, referenceAmpacityA: 25),
         ],
         ambientTemperatureFactor: 0.8,
@@ -54,7 +54,7 @@ void main() {
         supplyType: SupplyType.singlePhaseAc,
         conductorMaterial: ConductorMaterial.copper,
         maximumDropPercent: 1,
-        candidates: const [
+        candidates: [
           CableAmpacityEntry(crossSectionMm2: 2.5, referenceAmpacityA: 30),
         ],
       );
@@ -71,7 +71,7 @@ void main() {
         conductorMaterial: ConductorMaterial.copper,
         maximumDropPercent: 3,
         ambientTemperatureFactor: 0,
-        candidates: const [
+        candidates: [
           CableAmpacityEntry(crossSectionMm2: 2.5, referenceAmpacityA: 25),
         ],
       );
