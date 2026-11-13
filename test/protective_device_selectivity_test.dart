@@ -105,7 +105,7 @@ void main() {
     final invalid = const ProtectiveDeviceCurve(
       deviceReference: 'Invalid reference',
       points: [
-        const ProtectiveCurvePoint(
+        ProtectiveCurvePoint(
           currentA: 1000,
           minimumTimeS: 0.1,
           maximumTimeS: 0.2,
