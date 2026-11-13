@@ -191,7 +191,9 @@ void main() {
 
     expect(icu?.breakingCapacityA, 10000);
     expect(icu?.breakingCapacityRatingType, 'ICU');
-    expect(wrongVoltage, isNull);
+    // IEC 60947-2 also has a separately declared Ics rating at 230 V.
+    expect(wrongVoltage?.breakingCapacityA, 6000);
+    expect(wrongVoltage?.breakingCapacityRatingType, 'ICS');
   });
 
   test('SOMEF unqualified claim and missing revision stay non-calculation data',
