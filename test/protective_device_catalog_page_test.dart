@@ -25,7 +25,9 @@ void main() {
     );
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 300));
+    await tester.pumpAndSettle();
 
+    expect(find.byType(TextField), findsOneWidget);
     await tester.enterText(find.byType(TextField), 'SOMEF');
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 300));
