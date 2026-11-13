@@ -12,12 +12,12 @@ void main() {
     return ProtectiveDeviceCurve(
       deviceReference: reference,
       points: const [
-        ProtectiveCurvePoint(
+        const ProtectiveCurvePoint(
           currentA: 100,
           minimumTimeS: minAt100,
           maximumTimeS: maxAt100,
         ),
-        ProtectiveCurvePoint(
+        const ProtectiveCurvePoint(
           currentA: 1000,
           minimumTimeS: minAt1000,
           maximumTimeS: maxAt1000,
