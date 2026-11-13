@@ -2,6 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:electro_design/domain/calculations/protective_device_catalog_importer.dart';
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
   const importer = ProtectiveDeviceCatalogImporter();
 
   test('loads and parses the four real manufacturer asset records', () async {
