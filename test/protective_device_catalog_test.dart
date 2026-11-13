@@ -103,8 +103,8 @@ void main() {
   test('curve data requires a traceable record and at least two points', () {
     final curve = ProtectiveDeviceCurve(
       deviceReference: 'Synthetic test curve',
-      points: const [
-        ProtectiveCurvePoint(
+      points: [
+        const ProtectiveCurvePoint(
           currentA: 100,
           minimumTimeS: 0.1,
           maximumTimeS: 0.2,
