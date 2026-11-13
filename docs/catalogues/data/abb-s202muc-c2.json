@@ -1,0 +1,60 @@
+{
+  "manufacturer": "ABB",
+  "product_reference": "2CDS272061R0024",
+  "alternate_product_reference": "S202MUC-C2",
+  "product_family": "S 200 M UC",
+  "product_type": "S202M-C2UC",
+  "category": "miniatureCircuitBreaker",
+  "description": "2-pole miniature circuit breaker, C tripping characteristic, 2 A, AC/DC family.",
+  "rated_current_A": 2.0,
+  "pole_count": 2,
+  "tripping_characteristic": "C",
+  "rated_operational_voltage": {
+    "value": 400,
+    "unit": "V AC",
+    "scope": "2-pole Icn rating condition stated in ABB product specifications"
+  },
+  "breaking_capacity": {
+    "value": 10000,
+    "unit": "A",
+    "rating": "Icn",
+    "standard": "IEC/EN 60898-2",
+    "voltage_condition": "400 V AC"
+  },
+  "rated_impulse_withstand_voltage": {
+    "value": 4,
+    "unit": "kV",
+    "scope": "S 200 M UC family technical data"
+  },
+  "rated_insulation_voltage": {
+    "phase_to_ground": "253 V AC",
+    "phase_to_phase": "440 V AC",
+    "scope": "S 200 M UC family technical data"
+  },
+  "standard_references": [
+    "IEC/EN 60898-2",
+    "IEC/EN 60947-2",
+    "UL 1077",
+    "CSA 22.2 No. 235"
+  ],
+  "source_document": {
+    "title": "System pro M compact - Miniature Circuit Breaker S 200 M UC",
+    "document_identifier": "1SXU400144L0201",
+    "source_url": "https://library.e.abb.com/public/aeeea37834b7488ebd6796ebe35044d7/1SXU400144L0201_SystemProMCompactMCBS200MUC0915.pdf",
+    "language": "en",
+    "retrieved_on": "2026-11-11",
+    "evidence": [
+      "Page 1: family technical data, Icn, Uimp, Ui, standards and voltage ratings",
+      "Page 9: exact S202M-C2UC / 2CDS272061R0024 ordering row"
+    ]
+  },
+  "not_transcribed": [
+    "manufacturer time-current curve points for this exact product",
+    "conventional operating current I2",
+    "let-through energy I2t",
+    "pairwise selectivity limit",
+    "short-circuit breaking ratings at other voltage/standard combinations"
+  ],
+  "calculation_use_status": "identity and listed ratings transcribed; not approved as a complete protection-calculation dataset",
+  "runtime_integration": "not yet integrated into the Flutter application catalogue"
+}

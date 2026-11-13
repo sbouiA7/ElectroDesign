@@ -1,0 +1,67 @@
+{
+  "manufacturer": "Hager",
+  "product_reference": "MBN350A",
+  "product_family": "MBN",
+  "category": "miniatureCircuitBreaker",
+  "rated_current_A": 50,
+  "pole_count": 3,
+  "tripping_characteristic": "B",
+  "rated_operational_voltage": {
+    "value": 400,
+    "unit": "V AC"
+  },
+  "rated_insulation_voltage": {
+    "value": 500,
+    "unit": "V"
+  },
+  "rated_impulse_withstand_voltage": {
+    "value": 4,
+    "unit": "kV"
+  },
+  "breaking_capacity": [
+    {
+      "rating": "Icn",
+      "value": 6000,
+      "unit": "A",
+      "standard": "IEC 60898-1",
+      "voltage_condition": "230 V AC"
+    },
+    {
+      "rating": "Ics",
+      "value": 6000,
+      "unit": "A",
+      "standard": "IEC 60947-2",
+      "voltage_condition": "230 V AC"
+    },
+    {
+      "rating": "Icu",
+      "value": 10000,
+      "unit": "A",
+      "standard": "IEC 60947-2",
+      "voltage_condition": "400 V AC"
+    }
+  ],
+  "frequency_Hz": "50-60",
+  "energy_limitation_class": 3,
+  "ip_rating": "IP20",
+  "source_document": {
+    "title": "Product Datasheet MBN350A",
+    "document_identifier": "PDS_463606450000EN",
+    "source_url": "https://assets.hager.com/step-content/P/PDS_463606450000EN/Document/std.lang.all/PDS_MBN350A_0000_en-GB.pdf",
+    "language": "en",
+    "publication_or_update_date": "2026-01-16",
+    "retrieved_on": "2026-11-11",
+    "evidence": [
+      "Pages 1-2: exact model, 50 A, 3P, B curve, 230/400 V attributes and Icn/Ics/Icu ratings",
+      "Page 2: Ue 400 V AC, Ui 500 V, Uimp 4 kV, frequency, I²t class 3, IP20 and connection data"
+    ]
+  },
+  "not_transcribed": [
+    "manufacturer time-current curve points for exact product",
+    "numerical let-through energy I²t curve",
+    "conventional operating current I2",
+    "pairwise selectivity/cascading tables"
+  ],
+  "calculation_use_status": "exact product ratings transcribed with voltage and standard qualifiers; not a complete coordination/curve dataset",
+  "runtime_integration": "not yet integrated into Flutter runtime catalogue"
+}
