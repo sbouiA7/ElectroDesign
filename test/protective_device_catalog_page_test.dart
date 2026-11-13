@@ -7,7 +7,8 @@ void main() {
     await tester.pumpWidget(
       const MaterialApp(home: ProtectiveDeviceCatalogPage()),
     );
-    await tester.pumpAndSettle();
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 300));
 
     expect(find.text('Catalogue des protections'), findsOneWidget);
     expect(find.text('4 fiche(s)'), findsOneWidget);
@@ -22,17 +23,20 @@ void main() {
     await tester.pumpWidget(
       const MaterialApp(home: ProtectiveDeviceCatalogPage()),
     );
-    await tester.pumpAndSettle();
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 300));
 
     await tester.tap(find.text('SOMEF').first);
-    await tester.pumpAndSettle();
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 300));
 
     expect(find.text('1 fiche(s)'), findsOneWidget);
     expect(find.text('801106CX20'), findsOneWidget);
     expect(find.text('FN881C16'), findsNothing);
 
     await tester.tap(find.text('801106CX20'));
-    await tester.pumpAndSettle();
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 300));
 
     expect(find.text('Pouvoirs de coupure déclarés'), findsOneWidget);
     expect(find.textContaining('Norme non précisée'), findsOneWidget);
