@@ -110,7 +110,7 @@ void main() {
           minimumTimeS: 0.1,
           maximumTimeS: 0.2,
         ),
-        const ProtectiveCurvePoint(
+        ProtectiveCurvePoint(
           currentA: 100,
           minimumTimeS: 0.5,
           maximumTimeS: 0.7,
