@@ -23,11 +23,16 @@ void main() {
     await tester.pumpWidget(
       const MaterialApp(home: ProtectiveDeviceCatalogPage()),
     );
-    await tester.pumpAndSettle();
+    // The page loads bundled JSON asynchronously and shows an indeterminate
+    // progress indicator while loading. pumpAndSettle cannot finish while
+    // that animation is active, so advance the test clock deterministically.
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 300));
 
     expect(find.byType(TextField), findsOneWidget);
     await tester.enterText(find.byType(TextField), 'SOMEF');
-    await tester.pumpAndSettle();
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 300));
 
     expect(find.text('1 fiche(s)'), findsOneWidget);
     expect(find.text('801106CX20'), findsOneWidget);
