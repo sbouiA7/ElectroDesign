@@ -1,5 +1,6 @@
 import 'package:electro_design/features/catalog/protective_device_catalog_page.dart';
 import 'package:material_ui/material_ui.dart';
+import 'package:electro_design/domain/calculations/protective_device_catalog_importer.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 Future<void> pumpUntilFound(
@@ -32,6 +33,13 @@ void main() {
 
   testWidgets('filters records and opens a detailed product sheet',
       (tester) async {
+    // Load the bundled JSON with real async time before the widget test's
+    // fake clock starts. The page then reads the same cached rootBundle data.
+    await tester.runAsync(() async {
+      final records = await const ProtectiveDeviceCatalogImporter()
+          .loadBundledRecords();
+      expect(records, hasLength(4));
+    });
     await tester.pumpWidget(
       const MaterialApp(home: ProtectiveDeviceCatalogPage()),
     );
