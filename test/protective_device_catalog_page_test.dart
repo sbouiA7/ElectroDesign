@@ -1,6 +1,5 @@
 import 'package:electro_design/features/catalog/protective_device_catalog_page.dart';
 import 'package:material_ui/material_ui.dart';
-import 'package:electro_design/domain/calculations/protective_device_catalog_importer.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
