@@ -3,18 +3,6 @@ import 'package:material_ui/material_ui.dart';
 import 'package:electro_design/domain/calculations/protective_device_catalog_importer.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-Future<void> pumpUntilFound(
-  WidgetTester tester,
-  Finder finder, {
-  int maxPumps = 50,
-}) async {
-  for (var attempt = 0; attempt < maxPumps; attempt++) {
-    if (finder.evaluate().isNotEmpty) return;
-    await tester.pump(const Duration(milliseconds: 100));
-  }
-  expect(finder, findsOneWidget);
-}
-
 void main() {
   testWidgets('shows all bundled manufacturer records', (tester) async {
     await tester.pumpWidget(
@@ -33,21 +21,16 @@ void main() {
 
   testWidgets('filters records and opens a detailed product sheet',
       (tester) async {
-    // Load the bundled JSON with real async time before the widget test's
-    // fake clock starts. The page then reads the same cached rootBundle data.
-    await tester.runAsync(() async {
-      final records = await const ProtectiveDeviceCatalogImporter()
-          .loadBundledRecords();
-      expect(records, hasLength(4));
-    });
+    // Match the bundled-asset loading sequence already covered by the
+    // first widget test. Avoid runAsync: rootBundle loading is driven by the
+    // widget-test binding and must not be awaited outside its fake clock.
     await tester.pumpWidget(
       const MaterialApp(home: ProtectiveDeviceCatalogPage()),
     );
-    // Wait for the asynchronous bundled-asset load to expose the search
-    // field. Do not use pumpAndSettle: the indeterminate progress indicator
-    // animates continuously until the FutureBuilder receives its result.
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 300));
     final searchField = find.byType(TextField);
-    await pumpUntilFound(tester, searchField);
+    expect(searchField, findsOneWidget);
 
     expect(searchField, findsOneWidget);
     await tester.enterText(searchField, 'SOMEF');
