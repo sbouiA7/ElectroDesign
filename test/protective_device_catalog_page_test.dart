@@ -2,6 +2,18 @@ import 'package:electro_design/features/catalog/protective_device_catalog_page.d
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+Future<void> pumpUntilFound(
+  WidgetTester tester,
+  Finder finder, {
+  int maxPumps = 50,
+}) async {
+  for (var attempt = 0; attempt < maxPumps; attempt++) {
+    if (finder.evaluate().isNotEmpty) return;
+    await tester.pump(const Duration(milliseconds: 100));
+  }
+  expect(finder, findsOneWidget);
+}
+
 void main() {
   testWidgets('shows all bundled manufacturer records', (tester) async {
     await tester.pumpWidget(
@@ -27,9 +39,10 @@ void main() {
       const MaterialApp(home: ProtectiveDeviceCatalogPage()),
     );
     await tester.pump();
-    await tester.pump(const Duration(milliseconds: 300));
     final searchField = find.byType(TextField);
-    expect(searchField, findsOneWidget);
+    // The four JSON assets are loaded asynchronously and sequentially.
+    // Pump the widget-test clock until the FutureBuilder exposes the form.
+    await pumpUntilFound(tester, searchField);
 
     expect(searchField, findsOneWidget);
     await tester.enterText(searchField, 'SOMEF');
