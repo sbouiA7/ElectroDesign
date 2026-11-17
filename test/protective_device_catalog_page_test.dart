@@ -1,18 +1,71 @@
+import 'package:electro_design/domain/calculations/protective_device_catalog.dart';
+import 'package:electro_design/domain/calculations/protective_device_catalog_importer.dart';
 import 'package:electro_design/features/catalog/protective_device_catalog_page.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-Future<void> pumpUntilFound(
-  WidgetTester tester,
-  Finder finder, {
-  int maxPumps = 50,
-}) async {
-  for (var attempt = 0; attempt < maxPumps; attempt++) {
-    if (finder.evaluate().isNotEmpty) return;
-    await tester.pump(const Duration(milliseconds: 100));
-  }
-  expect(finder, findsOneWidget);
+ImportedProtectiveDeviceRecord _record({
+  required String manufacturer,
+  required String productReference,
+  required String productFamily,
+  required double ratedCurrentA,
+  required int poleCount,
+  required List<ImportedBreakingCapacityRating> breakingRatings,
+}) {
+  return ImportedProtectiveDeviceRecord(
+    manufacturer: manufacturer,
+    productReference: productReference,
+    productFamily: productFamily,
+    category: ProtectiveDeviceCategory.miniatureCircuitBreaker,
+    ratedCurrentA: ratedCurrentA,
+    operationalVoltageV: null,
+    poleCount: poleCount,
+    document: ManufacturerDocumentReference(
+      title: '$manufacturer fiche technique',
+      sourceUrl: 'https://example.com/$productReference.pdf',
+      documentRevision: 'test-revision',
+      language: 'fr',
+      retrievedOn: '2026-11-17',
+      pageReferences: const ['Page 1'],
+    ),
+    standardReferences: const [],
+    breakingRatings: breakingRatings,
+    sourceStatus: 'test fixture',
+  );
 }
+
+List<ImportedProtectiveDeviceRecord> _testRecords() => [
+  _record(
+    manufacturer: 'SOMEF',
+    productReference: '801106CX20',
+    productFamily: 'Disjoncteur modulaire',
+    ratedCurrentA: 20,
+    poleCount: 1,
+    breakingRatings: const [
+      ImportedBreakingCapacityRating(
+        rating: 'Icn',
+        currentA: 6000,
+        standard: null,
+        voltageV: null,
+      ),
+    ],
+  ),
+  _record(
+    manufacturer: 'Legrand',
+    productReference: 'FN881C16',
+    productFamily: 'BTDIN 60',
+    ratedCurrentA: 16,
+    poleCount: 2,
+    breakingRatings: const [
+      ImportedBreakingCapacityRating(
+        rating: 'Icn',
+        currentA: 6000,
+        standard: 'EN/IEC 60898-1',
+        voltageV: 230,
+      ),
+    ],
+  ),
+];
 
 void main() {
   testWidgets('shows all bundled manufacturer records', (tester) async {
@@ -32,22 +85,19 @@ void main() {
 
   testWidgets('filters records and opens a detailed product sheet',
       (tester) async {
-    // Match the bundled-asset loading sequence already covered by the
-    // first widget test. Avoid runAsync: rootBundle loading is driven by the
-    // widget-test binding and must not be awaited outside its fake clock.
     await tester.pumpWidget(
-      const MaterialApp(home: ProtectiveDeviceCatalogPage()),
+      MaterialApp(
+        home: ProtectiveDeviceCatalogPage(
+          recordsFuture: Future.value(_testRecords()),
+        ),
+      ),
     );
     await tester.pump();
-    final searchField = find.byType(TextField);
-    // The four JSON assets are loaded asynchronously and sequentially.
-    // Pump the widget-test clock until the FutureBuilder exposes the form.
-    await pumpUntilFound(tester, searchField);
 
+    final searchField = find.byType(TextField);
     expect(searchField, findsOneWidget);
     await tester.enterText(searchField, 'SOMEF');
     await tester.pump();
-    await tester.pump(const Duration(milliseconds: 300));
 
     expect(find.text('1 fiche(s)'), findsOneWidget);
     expect(find.text('801106CX20'), findsOneWidget);
