@@ -3,7 +3,14 @@ import 'package:material_ui/material_ui.dart';
 import '../../domain/calculations/protective_device_catalog_importer.dart';
 
 class ProtectiveDeviceCatalogPage extends StatefulWidget {
-  const ProtectiveDeviceCatalogPage({super.key});
+  const ProtectiveDeviceCatalogPage({
+    super.key,
+    this.recordsFuture,
+  });
+
+  /// Optional data source for deterministic widget tests and alternate
+  /// catalogue providers. Production defaults to the bundled offline records.
+  final Future<List<ImportedProtectiveDeviceRecord>>? recordsFuture;
   @override
   State<ProtectiveDeviceCatalogPage> createState() => _ProtectiveDeviceCatalogPageState();
 }
@@ -11,7 +18,21 @@ class ProtectiveDeviceCatalogPage extends StatefulWidget {
 class _ProtectiveDeviceCatalogPageState extends State<ProtectiveDeviceCatalogPage> {
   final searchController = TextEditingController();
   final importer = const ProtectiveDeviceCatalogImporter();
-  late Future<List<ImportedProtectiveDeviceRecord>> recordsFuture = importer.loadBundledRecords();
+  late Future<List<ImportedProtectiveDeviceRecord>> recordsFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    recordsFuture = widget.recordsFuture ?? importer.loadBundledRecords();
+  }
+
+  @override
+  void didUpdateWidget(covariant ProtectiveDeviceCatalogPage oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.recordsFuture != widget.recordsFuture) {
+      recordsFuture = widget.recordsFuture ?? importer.loadBundledRecords();
+    }
+  }
   String manufacturer = 'Tous';
 
   @override
