@@ -5,6 +5,7 @@ import '../../domain/models/electrical_part.dart';
 import '../../domain/models/electrical_terminal.dart';
 import '../../domain/models/project_document.dart';
 import '../../services/project_file_service.dart';
+import '../tools/tools_page.dart';
 import 'widgets/grid_painter.dart';
 
 class EditorPage extends StatefulWidget {
@@ -339,6 +340,13 @@ class _EditorPageState extends State<EditorPage> {
             Text('ElectroDesign')
           ]),
           actions: [
+            IconButton(
+              tooltip: 'Outils et instruments',
+              onPressed: () => Navigator.of(context).push(
+                MaterialPageRoute(builder: (_) => const ToolsPage()),
+              ),
+              icon: const Icon(Icons.handyman_outlined),
+            ),
             IconButton(
               tooltip: 'Nouveau schéma',
               onPressed: _newProject,
