@@ -2,24 +2,21 @@
 
 Application Flutter native de conception de schémas électriques pour Android et Windows.
 
-## Fonctions présentes sur `main`
+## Fonctions présentes dans la branche de calcul
 
-- Éditeur de schéma sur grille, adaptatif téléphone / ordinateur.
-- Bibliothèque initiale de 63 composants génériques : domestique, protection, tertiaire, industriel et nouvelles générations.
-- Placement, sélection et suppression de composants.
-- Configuration manuelle des bornes lorsqu'aucune implantation vérifiée n'est disponible.
-- Connexions interactives entre bornes et tracé orthogonal des liaisons.
-- Enregistrement et ouverture de projets locaux au format JSON.
-- Modèle de projet versionné (schéma 2) avec validation des identifiants, bornes et connexions.
-- Tests Flutter de l'ouverture de l'éditeur, du modèle de projet et du rafraîchissement du dessin.
+- Éditeur de schémas adaptatif, bibliothèque de composants, placement et sélection.
+- Connexions interactives entre bornes configurées, enregistrement et ouverture de projets JSON.
+- Catalogue de protections avec références ABB, Hager, Legrand et SOMEF ; les caractéristiques incomplètes restent signalées et ne sont pas utilisées comme données vérifiées.
+- Estimation des courants en DC, monophasé et triphasé.
+- Calcul de chute de tension et pré-dimensionnement des sections de câbles à partir des données fournies.
+- Contrôles de coordination des protections, de mise à la terre TT/TN et vérifications RCD/selectivité sur les données disponibles.
+- Tests unitaires des modèles et fonctions de calcul.
 
-## Limites actuelles
+## Limites et sécurité
 
-Cette version constitue le socle de l'application. Le catalogue multimarque documenté, les calculs et dimensionnements électriques, les contrôles normatifs, les tableaux 2D/3D, les métrés, devis/factures, tarifs régionaux sourcés, exports techniques et parcours de formation ne sont pas encore intégrés à `main`.
+Les résultats dépendent des données de câbles, fabricants, protections, normes et conditions réelles de l'installation. Les contrôles sont des aides à l'étude ; ils ne constituent ni une vérification exhaustive de conformité ni une certification. Les données fabricant incomplètes, notamment certaines fiches de catalogue, ne doivent pas être extrapolées.
 
-Les caractéristiques fabricants doivent être associées à leur référence exacte, leur norme, leur tension et leur document source. Une donnée incomplète ne doit pas être utilisée automatiquement dans un calcul ni servir à déclarer une conformité.
-
-Les fonctions essentielles de conception et de gestion des fichiers doivent rester utilisables hors ligne. Les prix des matériaux et de la main-d'œuvre sont à saisir et modifier par l'utilisateur ; aucun prix ni devise n'est imposé.
+Les tableaux 2D/3D, métrés, devis/factures, tarifs régionaux sourcés et parcours de formation restent des étapes ultérieures.
 
 ## Prérequis
 
@@ -39,4 +36,4 @@ flutter build apk --release
 flutter build windows --release
 ```
 
-Le workflow GitHub Actions vérifie l'analyse et les tests Flutter, puis construit les versions Android APK et Windows.
+Les workflows GitHub Actions vérifient l'analyse et les tests Flutter et préparent les compilations Android APK et Windows. Les artefacts ne sont considérés disponibles qu'après une exécution réussie.

@@ -1,0 +1,52 @@
+{
+  "manufacturer": "SOMEF",
+  "product_reference": "801106CX20",
+  "product_family": "SOMEF modular DIN-rail breakers",
+  "category": "miniatureCircuitBreaker",
+  "rated_current_A": 20,
+  "pole_count": 1,
+  "tripping_characteristic": "C",
+  "breaking_capacity": {
+    "rating": "Icn (as stated on official product page)",
+    "value": 6000,
+    "unit": "A",
+    "standard": null,
+    "voltage_condition": null
+  },
+  "available_pole_configurations": [
+    "1P",
+    "2P",
+    "3P",
+    "4P",
+    "1P+N"
+  ],
+  "other_available_rated_currents_A": [
+    10,
+    16,
+    20,
+    25,
+    32,
+    40,
+    50,
+    63
+  ],
+  "source_document": {
+    "title": "Disjoncteur modulaire",
+    "source_url": "https://www.somef.tn/fr/systemes-modulaires-sur-rail-din/1552-disjoncteur-modulaire-1-pole.html",
+    "language": "fr",
+    "retrieved_on": "2026-11-11",
+    "evidence": [
+      "Official product page lines 60-72: 1P 20 A, C curve, Icn=6 kA, other pole variants and available ratings, exact reference 801106CX20"
+    ]
+  },
+  "not_transcribed": [
+    "rated voltage and frequency",
+    "standard defining the Icn claim and corresponding test voltage",
+    "manufacturer technical datasheet/document revision",
+    "time-current curve points",
+    "I²t and peak let-through curves",
+    "I2 and pairwise selectivity tables"
+  ],
+  "calculation_use_status": "official product identity and headline claims transcribed; Icn is not qualified by a standard or voltage on the page and must not be used as a verified breaking-capacity input",
+  "runtime_integration": "not yet integrated into Flutter runtime catalogue"
+}

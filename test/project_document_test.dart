@@ -113,6 +113,34 @@ void main() {
     );
   });
 
+  test('manufacturer protective device assignment survives JSON round trip', () {
+    final json = sampleProject().toJson();
+    final components = json['components'] as List;
+    components[0] = {
+      ...components[0] as Map<String, Object?>,
+      'protectiveDeviceManufacturer': 'ABB',
+      'protectiveDeviceReference': '2CDS272061R0024',
+      'protectiveDeviceRatingType': 'ICN',
+      'protectiveDeviceBreakingCapacityA': 10000,
+      'protectiveDeviceBreakingStandard': 'IEC/EN 60898-2',
+      'protectiveDeviceBreakingVoltageV': 400,
+      'protectiveDeviceRatedCurrentA': 2,
+    };
+    final restored = ProjectDocument.fromJson(json);
+    expect(restored.components.first.protectiveDeviceManufacturer, 'ABB');
+    expect(restored.components.first.protectiveDeviceReference, '2CDS272061R0024');
+    expect(restored.components.first.protectiveDeviceRatingType, 'ICN');
+    expect(restored.components.first.protectiveDeviceBreakingCapacityA, 10000);
+    expect(restored.components.first.protectiveDeviceBreakingVoltageV, 400);
+  });
+
+  test('legacy schema version 2 projects remain readable', () {
+    final json = sampleProject().toJson()..['schemaVersion'] = 2;
+    final restored = ProjectDocument.fromJson(json);
+    expect(restored.schemaVersion, ProjectDocument.currentSchemaVersion);
+    expect(restored.components.first.protectiveDeviceReference, isNull);
+  });
+
   test('unknown schema versions are rejected', () {
     final json = sampleProject().toJson()..['schemaVersion'] = 99;
 

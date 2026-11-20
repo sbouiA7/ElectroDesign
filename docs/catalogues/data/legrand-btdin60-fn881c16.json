@@ -1,0 +1,51 @@
+{
+  "manufacturer": "Legrand",
+  "product_reference": "FN881C16",
+  "product_family": "BTDIN 60 MCB Phase+Neutral",
+  "category": "miniatureCircuitBreaker",
+  "rated_current_A": 16,
+  "pole_configuration": "2P (1 protected phase pole + neutral pole)",
+  "tripping_characteristic": "C",
+  "rated_operational_voltage": "230 V AC",
+  "frequency_Hz": "50",
+  "breaking_capacity": [
+    {
+      "rating": "Icn",
+      "value": 6000,
+      "unit": "A",
+      "standard": "EN/IEC 60898-1",
+      "voltage_condition": "230 V AC"
+    },
+    {
+      "rating": "Icu",
+      "value": 10000,
+      "unit": "A",
+      "standard": "EN/IEC 60947-2",
+      "voltage_condition": "230 V AC"
+    }
+  ],
+  "rated_impulse_withstand_voltage_kV": 4,
+  "rated_insulation_voltage_V": 250,
+  "mounting": "35 mm DIN rail",
+  "source_document": {
+    "title": "BTDIN 60 MCB Phase+Neutral",
+    "document_identifier": "IDP000402EN_02",
+    "source_url": "https://assets.legrand.com/pim/NP-FT-GT/IDP000402EN-02.pdf",
+    "language": "en",
+    "publication_or_update_date": "2021-02-18",
+    "retrieved_on": "2026-11-11",
+    "evidence": [
+      "Page 1: product reference FN881C16 included in range, 16 A C curve, 230 V AC 50 Hz, Icn 6 kA and Icu 10 kA",
+      "Page 3: temperature derating, Uimp 4 kV and Ui 250 V",
+      "Pages 6-8: family B/C trip and current-limiting curves; numerical points not transcribed"
+    ]
+  },
+  "not_transcribed": [
+    "numeric time-current curve envelope for the exact rating",
+    "numeric peak let-through and I²t values",
+    "I2 and exact conventional operating current",
+    "pairwise selectivity table for exact upstream/downstream combination"
+  ],
+  "calculation_use_status": "identity and headline ratings transcribed; curve-dependent protection calculations not approved until exact curves and operating conditions are digitized and reviewed",
+  "runtime_integration": "not yet integrated into Flutter runtime catalogue"
+}
