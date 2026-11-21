@@ -446,20 +446,26 @@ class _EditorPageState extends State<EditorPage> {
                     Navigator.of(context).push(MaterialPageRoute(
                       builder: (_) => const ProtectiveDeviceCatalogPage(),
                     ));
+                    break;
                   case 'new':
                     _newProject();
+                    break;
                   case 'open':
                     _openProject();
+                    break;
                   case 'save':
                     _saveProject();
+                    break;
                   case 'wiring':
                     setState(() {
                       wiringMode = !wiringMode;
                       wireStart = null;
                       wireStartTerminal = null;
                     });
+                    break;
                   case 'delete':
                     remove();
+                    break;
                 }
               },
               itemBuilder: (context) => [
