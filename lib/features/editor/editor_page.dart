@@ -438,41 +438,82 @@ class _EditorPageState extends State<EditorPage> {
             Text('ElectroDesign')
           ]),
           actions: [
-            IconButton(
-              tooltip: 'Catalogue des protections',
-              onPressed: () => Navigator.of(context).push(MaterialPageRoute(
-                builder: (_) => const ProtectiveDeviceCatalogPage(),
-              )),
-              icon: const Icon(Icons.inventory_2_outlined),
-            ),
-            IconButton(
-              tooltip: 'Nouveau schéma',
-              onPressed: _newProject,
-              icon: const Icon(Icons.note_add_outlined),
-            ),
-            IconButton(
-              tooltip: 'Ouvrir un projet',
-              onPressed: _openProject,
-              icon: const Icon(Icons.folder_open_outlined),
-            ),
-            IconButton(
-              tooltip: 'Enregistrer le projet',
-              onPressed: _saveProject,
-              icon: const Icon(Icons.save_outlined),
-            ),
-            IconButton(
-              tooltip: wiringMode ? 'Quitter le câblage' : 'Tracer une liaison',
-              onPressed: () => setState(() {
-                wiringMode = !wiringMode;
-                wireStart = null;
-                wireStartTerminal = null;
-              }),
-              icon: Icon(wiringMode ? Icons.close : Icons.cable),
-            ),
-            IconButton(
-              tooltip: 'Supprimer',
-              onPressed: remove,
-              icon: const Icon(Icons.delete_outline),
+            PopupMenuButton<String>(
+              tooltip: 'Actions du projet',
+              onSelected: (action) {
+                switch (action) {
+                  case 'catalog':
+                    Navigator.of(context).push(MaterialPageRoute(
+                      builder: (_) => const ProtectiveDeviceCatalogPage(),
+                    ));
+                  case 'new':
+                    _newProject();
+                  case 'open':
+                    _openProject();
+                  case 'save':
+                    _saveProject();
+                  case 'wiring':
+                    setState(() {
+                      wiringMode = !wiringMode;
+                      wireStart = null;
+                      wireStartTerminal = null;
+                    });
+                  case 'delete':
+                    remove();
+                }
+              },
+              itemBuilder: (context) => [
+                const PopupMenuItem(
+                  value: 'catalog',
+                  child: ListTile(
+                    leading: Icon(Icons.inventory_2_outlined),
+                    title: Text('Catalogue des protections'),
+                    contentPadding: EdgeInsets.zero,
+                  ),
+                ),
+                const PopupMenuItem(
+                  value: 'new',
+                  child: ListTile(
+                    leading: Icon(Icons.note_add_outlined),
+                    title: Text('Nouveau schéma'),
+                    contentPadding: EdgeInsets.zero,
+                  ),
+                ),
+                const PopupMenuItem(
+                  value: 'open',
+                  child: ListTile(
+                    leading: Icon(Icons.folder_open_outlined),
+                    title: Text('Ouvrir un projet'),
+                    contentPadding: EdgeInsets.zero,
+                  ),
+                ),
+                const PopupMenuItem(
+                  value: 'save',
+                  child: ListTile(
+                    leading: Icon(Icons.save_outlined),
+                    title: Text('Enregistrer le projet'),
+                    contentPadding: EdgeInsets.zero,
+                  ),
+                ),
+                PopupMenuItem(
+                  value: 'wiring',
+                  child: ListTile(
+                    leading: Icon(wiringMode ? Icons.close : Icons.cable),
+                    title: Text(wiringMode
+                        ? 'Quitter le câblage'
+                        : 'Tracer une liaison'),
+                    contentPadding: EdgeInsets.zero,
+                  ),
+                ),
+                const PopupMenuItem(
+                  value: 'delete',
+                  child: ListTile(
+                    leading: Icon(Icons.delete_outline),
+                    title: Text('Supprimer la sélection'),
+                    contentPadding: EdgeInsets.zero,
+                  ),
+                ),
+              ],
             ),
           ],
         ),
