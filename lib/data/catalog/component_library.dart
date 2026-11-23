@@ -1,13 +1,39 @@
 import '../../domain/models/electrical_part.dart';
+import '../../domain/models/electrical_terminal.dart';
 
 const library = <Part>[
-  Part('Interrupteur', 'Domestique', 'S', 'Commande d’éclairage'),
-  Part('Prise 2P+T', 'Domestique', 'P', 'Prise avec conducteur de protection'),
-  Part('Lampe', 'Domestique', 'L', 'Point lumineux'),
-  Part('Disjoncteur', 'Protection', 'QF', 'Protection contre les surintensités'),
-  Part('Interrupteur différentiel', 'Protection', 'ID', 'Protection différentielle'),
+  Part('Interrupteur', 'Domestique', 'S', 'Commande d’éclairage', terminals: [
+    ElectricalTerminal(id: 'L', label: 'L (commun)', x: 0, y: .5),
+    ElectricalTerminal(id: '1', label: '1 (sortie)', x: 1, y: .5),
+  ]),
+  Part('Prise 2P+T', 'Domestique', 'P', 'Prise avec conducteur de protection', terminals: [
+    ElectricalTerminal(id: 'L', label: 'L (phase)', x: 0, y: .25),
+    ElectricalTerminal(id: 'N', label: 'N (neutre)', x: 0, y: .5),
+    ElectricalTerminal(id: 'PE', label: 'PE (terre)', x: 0, y: .75),
+  ]),
+  Part('Lampe', 'Domestique', 'L', 'Point lumineux', terminals: [
+    ElectricalTerminal(id: 'L', label: 'L (phase)', x: 0, y: .35),
+    ElectricalTerminal(id: 'N', label: 'N (neutre)', x: 1, y: .65),
+  ]),
+  Part('Disjoncteur', 'Protection', 'QF', 'Protection contre les surintensités', terminals: [
+    ElectricalTerminal(id: '1', label: '1 (amont)', x: 0, y: .35),
+    ElectricalTerminal(id: '2', label: '2 (aval)', x: 1, y: .65),
+  ]),
+  Part('Interrupteur différentiel', 'Protection', 'ID', 'Protection différentielle', terminals: [
+    ElectricalTerminal(id: '1', label: '1 (phase amont)', x: 0, y: .3),
+    ElectricalTerminal(id: 'N', label: 'N (neutre amont)', x: 0, y: .7),
+    ElectricalTerminal(id: '2', label: '2 (phase aval)', x: 1, y: .3),
+    ElectricalTerminal(id: 'N2', label: 'N (neutre aval)', x: 1, y: .7),
+  ]),
   Part('Parafoudre', 'Protection', 'SPD', 'Protection contre les surtensions'),
-  Part('Contacteur', 'Tertiaire', 'KM', 'Commande de puissance'),
+  Part('Contacteur', 'Tertiaire', 'KM', 'Commande de puissance', terminals: [
+    ElectricalTerminal(id: 'A1', label: 'A1 (bobine)', x: 0, y: .2),
+    ElectricalTerminal(id: 'A2', label: 'A2 (bobine)', x: 0, y: .8),
+    ElectricalTerminal(id: '1L1', label: '1/L1', x: 1, y: .2),
+    ElectricalTerminal(id: '2T1', label: '2/T1', x: 1, y: .4),
+    ElectricalTerminal(id: '3L2', label: '3/L2', x: 1, y: .6),
+    ElectricalTerminal(id: '4T2', label: '4/T2', x: 1, y: .8),
+  ]),
   Part('Relais thermique', 'Industriel', 'RT', 'Protection moteur'),
   Part('Moteur triphasé', 'Industriel', 'M 3~', 'Récepteur triphasé'),
   Part('Variateur de vitesse', 'Nouvelle génération', 'VFD', 'Commande électronique moteur'),
