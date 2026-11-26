@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 import '../../data/catalog/tool_library.dart';
 import '../../domain/models/electrical_tool.dart';
