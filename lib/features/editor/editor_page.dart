@@ -2,6 +2,7 @@ import 'package:material_ui/material_ui.dart';
 
 import '../../data/catalog/component_library.dart';
 import '../catalog/protective_device_catalog_page.dart';
+import '../tools/tools_page.dart';
 import '../../domain/models/electrical_part.dart';
 import '../../domain/models/electrical_terminal.dart';
 import '../../domain/models/project_document.dart';
@@ -438,6 +439,13 @@ class _EditorPageState extends State<EditorPage> {
             Text('ElectroDesign')
           ]),
           actions: [
+            IconButton(
+              tooltip: 'Outils et instruments',
+              onPressed: () => Navigator.of(context).push(
+                MaterialPageRoute(builder: (_) => const ToolsPage()),
+              ),
+              icon: const Icon(Icons.handyman_outlined),
+            ),
             IconButton(
               tooltip: 'Catalogue des protections',
               onPressed: () => Navigator.of(context).push(MaterialPageRoute(
